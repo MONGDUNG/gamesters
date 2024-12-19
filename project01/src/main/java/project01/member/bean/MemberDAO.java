@@ -200,7 +200,7 @@ public class MemberDAO extends DataBaseConnection{
 			result = pstmt.executeUpdate();
 			
 		}catch (Exception e) {
-			e.printStackTrace();// TODO: handle exception
+			e.printStackTrace();
 		}finally {
 			dbClose(rs, pstmt, conn);
 		}
@@ -220,7 +220,7 @@ public class MemberDAO extends DataBaseConnection{
 			}
 			
 		}catch (Exception e) {
-			e.printStackTrace();// TODO: handle exception
+			e.printStackTrace();//
 		}finally {
 			dbClose(rs, pstmt, conn);
 		}
@@ -240,7 +240,7 @@ public class MemberDAO extends DataBaseConnection{
 			}
 			
 		}catch (Exception e) {
-			e.printStackTrace();// TODO: handle exception
+			e.printStackTrace();//
 		}finally {
 			dbClose(rs, pstmt, conn);
 		}
@@ -378,7 +378,7 @@ public class MemberDAO extends DataBaseConnection{
 				dto.setGreeting(rs.getString("GREETING"));
 			}		
 		} catch (Exception e) {
-			e.printStackTrace();// TODO: handle exception
+			e.printStackTrace();// 
 		}finally {
 			dbClose(rs, pstmt, conn);
 		}
@@ -395,7 +395,7 @@ public class MemberDAO extends DataBaseConnection{
 			pstmt.setString(2, nick);
 			pstmt.executeUpdate();
 		} catch (Exception e) {
-			e.printStackTrace();// TODO: handle exception
+			e.printStackTrace();// 
 		} finally {
 			dbClose(rs, pstmt, conn);
 		}
@@ -410,7 +410,7 @@ public class MemberDAO extends DataBaseConnection{
 			pstmt.setString(2, blocked_nick);
 			pstmt.executeUpdate();
 		} catch (Exception e) {
-			e.printStackTrace();// TODO: handle exception
+			e.printStackTrace();// 
 		} finally {
 			dbClose(rs, pstmt, conn);
 		}
@@ -425,7 +425,7 @@ public class MemberDAO extends DataBaseConnection{
 			pstmt.setString(2, blocked_nick);
 			pstmt.executeUpdate();
 		} catch (Exception e) {
-			e.printStackTrace();// TODO: handle exception
+			e.printStackTrace();// 
 		} finally {
 			dbClose(rs, pstmt, conn);
 		}
@@ -444,7 +444,7 @@ public class MemberDAO extends DataBaseConnection{
 				blockedMembers.add(rs.getString("BLOCKED_NICK"));
 			}
 		} catch (Exception e) {
-			e.printStackTrace();// TODO: handle exception
+			e.printStackTrace();// 
 		} finally {
 			dbClose(rs, pstmt, conn);
 		}

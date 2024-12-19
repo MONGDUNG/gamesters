@@ -10,6 +10,8 @@
     String currentPageParam = request.getParameter("currentPage");
     String tab = request.getParameter("tab");
     String selectedCategory = request.getParameter("category");
+    String searchType = request.getParameter("searchType");
+    String searchWord = request.getParameter("searchWord");
     if (selectedCategory== null){
     	selectedCategory = "전체";
     }
@@ -31,13 +33,13 @@
     if ("topVoted".equals(tab)) {
         boardList = boardDAO.getTopVotedBoardList(game, start, end, "normal");
     } else if (selectedCategory == null || "전체".equals(selectedCategory)) {
-        boardList = boardDAO.getBoardList(game, start, end);
+        boardList = boardDAO.getBoardList(game, start, end, searchType, searchWord);
     } else {
         boardList = boardDAO.getCategoryBoardList(game, start, end, selectedCategory);
     }
 
     // 전체 게시글 수를 가져오는 메서드 (getTotalCount 필요)
-    int totalRecords = boardDAO.getTotalCount(game);
+    int totalRecords = boardDAO.getTotalCount(game, searchType, searchWord);
     int noOfPages = (int) Math.ceil((double) totalRecords / recordsPerPage);
 
     List<String> categoryList = boardDAO.getCategory(game);
@@ -251,12 +253,28 @@
                 </tr>
                 <% } %>
             </table>
+            
+            <form action="board.jsp" method="get" >
+            	<input type="hidden" name="game" value="<%= game %>" />
+            	<select name="searchType">
+            		<option value="nickname">닉네임</option>
+            		<option value="title">제목</option>
+            		<option value="content">내용</option>
+            	</select>
+            	<input type="text" name="searchWord" placeholder="검색어를 입력하세요"/>
+            	<button type="submit">검색</button>
+            </form>
+            
 
             <!-- 페이징 -->
             <div class="pagination">
-                <% for (int i = 1; i <= noOfPages; i++) { %>
+                <% for (int i = 1; i <= noOfPages; i++) { 
+                	if(searchType != null && searchWord != null){%>
+                	
+                	<a href="board.jsp?game=<%= game %>&currentPage=<%= i %>&category=<%= selectedCategory %>&searchType=<%= searchType %>&searchWord=<%= searchWord %>"><%= i %></a>
+                	<% } else {%>
                     <a href="board.jsp?game=<%= game %>&currentPage=<%= i %>&tab=<%= tab %>&category=<%= selectedCategory %>"><%= i %></a>
-                <% } %>
+                <% }} %>
             </div>
         </div>
     </div>

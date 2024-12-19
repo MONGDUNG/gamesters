@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.jasper.tagplugins.jstl.core.If;
 
 import project01.site.bean.DataBaseConnection;
 
@@ -59,20 +58,48 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 		}
 		return result;
 	}
-	public List<BoardDTO> getBoardList(String game, int start, int end) {   // 게시글 목록 가져오기
+	
+	
+	//////////////////////////////////////////////2024-12-18 검색기능을 추가한 메서드로 변경////////////////////////////////////////////////////////
+	public List<BoardDTO> getBoardList(String game, int start, int end, String searchType, String searchWord) {   // 게시글 목록 가져오기 & 검색기능
 	       List<BoardDTO> list0 = new ArrayList<>();
 	       try {
 	          conn = getOracleConnection();
 	          // order_col = 0 인 일반게시글 가져오기
+	          
+	          //기본 SQL
+	          String baseSql = "SELECT * FROM " +game+ "_BOARD WHERE order_col = 0"; 
+	          
+	          //검색조건 추가
+	          if(searchType != null && searchWord != null && !searchType.isEmpty() && !searchWord.isEmpty()) {
+	        	  if(searchType.equals("title")) {
+	        		  baseSql += " AND INSTR(title, ?) > 0";
+	        	  }else if(searchType.equals("nickname")){
+	        		  baseSql += " AND INSTR(nickname, ?) > 0";
+	        	  }else if(searchType.equals("content")) {
+	        		  baseSql += " AND INSTR(content, ?) > 0";
+	        	  }
+	          }
+	          
+	          //페이징 및 정렬
 	           sql = "SELECT * FROM ("
 	                  + "    SELECT ROWNUM rnum, d.* FROM ("
-	                  + "        SELECT * FROM " + game + "_BOARD WHERE order_col = 0 ORDER BY boardnum DESC"
+	                  + "    " + baseSql + "ORDER BY boardnum DESC"
 	                  + "    ) d WHERE ROWNUM <= ?"
 	                  + ") WHERE rnum >= ?";
 	              pstmt = conn.prepareStatement(sql);
-	              pstmt.setInt(1, end);   // ROWNUM <= end
-	              pstmt.setInt(2, start); // rnum >= start
-	              rs = pstmt.executeQuery();
+	              
+	              int paramIndex = 1; 
+	              if(searchType != null && searchWord != null && !searchType.isEmpty() && !searchWord.isEmpty())
+	              {
+	            	  pstmt.setString(paramIndex++, searchWord);	//검색어 넣고 paramInt 후증가
+	            	  
+	              }
+	              pstmt.setInt(paramIndex++, end);
+            	  pstmt.setInt(paramIndex, start);	//세번째에 start 삽입됨
+	              
+	              rs = pstmt.executeQuery();	             
+	             
 	              while (rs.next()) {
 	                  BoardDTO dto = new BoardDTO();
 	                  dto.setBoardnum(rs.getInt("boardnum"));
@@ -95,7 +122,8 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 	       }
 	       return list0;
 	   }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
 	public List<BoardDTO> getBoardList1(String game, int start, int end) {   // 게시글 목록 가져오기
 	       List<BoardDTO> list1 = new ArrayList<>();
 	       try {
@@ -254,15 +282,34 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 	    }
 	    return list;
 	}
-	public int getTotalCount(String game) {
+	
+	//////////////////////////////////////2024-12-19 수정/////////////////////////////////
+	public int getTotalCount(String game, String searchType, String searchWord) {
 	    int count = 0;
 	    try {
 	        conn = getOracleConnection();
-	        sql = "SELECT COUNT(*) FROM " + game + "_BOARD";
-	        pstmt = conn.prepareStatement(sql);
+	        String baseSql = "SELECT COUNT(*) FROM " + game + "_BOARD";
+	        
+	        if(searchType != null && searchWord != null && !searchType.isEmpty() && !searchWord.isEmpty()) {
+	        	  if(searchType.equals("title")) {
+	        		  baseSql += " WHERE INSTR(title, ?) > 0";
+	        	  }else if(searchType.equals("nickname")){
+	        		  baseSql += " WHERE INSTR(nickname, ?) > 0";
+	        	  }else if(searchType.equals("content")) {
+	        		  baseSql += " WHERE INSTR(content, ?) > 0";
+	        	  }
+	          }
+	        	        
+	        pstmt = conn.prepareStatement(baseSql);
+	        
+	        if(searchType != null && searchWord != null && !searchType.isEmpty() && !searchWord.isEmpty()) {
+	        	pstmt.setString(1, searchWord);
+	        }
+	        
 	        rs = pstmt.executeQuery();
 	        if (rs.next()) {
 	            count = rs.getInt(1);
+	            System.out.println(count);
 	        }
 	    } catch (Exception e) {
 	        e.printStackTrace();
@@ -271,6 +318,7 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 	    }
 	    return count;
 	}
+	//////////////////////////////////////////////////////////////////////////////////////////
 	public void boardInsert(BoardDTO dto, String game, String category) {  // 게시글 작성
 	    try {
 	        conn = getOracleConnection();
