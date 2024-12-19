@@ -309,7 +309,6 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 	        rs = pstmt.executeQuery();
 	        if (rs.next()) {
 	            count = rs.getInt(1);
-	            System.out.println(count);
 	        }
 	    } catch (Exception e) {
 	        e.printStackTrace();
