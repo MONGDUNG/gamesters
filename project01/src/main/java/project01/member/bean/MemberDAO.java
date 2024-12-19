@@ -507,6 +507,33 @@ public class MemberDAO extends DataBaseConnection{
 
 	    return true;
 	}
+	
+	public boolean checkUser(String id, String email) {
+	    boolean exists = false;
+	    try {
+	        // 데이터베이스 연결
+	        conn = getOracleConnection(); // Oracle DB 연결 메서드
+
+	        // SQL 쿼리 작성
+	        sql = "SELECT COUNT(*) FROM member WHERE id = ? AND email = ?";
+	        pstmt = conn.prepareStatement(sql);
+	        pstmt.setString(1, id);
+	        pstmt.setString(2, email);
+
+	        // 쿼리 실행 및 결과 처리
+	        rs = pstmt.executeQuery();
+	        if (rs.next()) {
+	            exists = rs.getInt(1) > 0; // COUNT(*)가 1 이상이면 true
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace(); // 오류 로그 출력
+	    } finally {
+	        // 리소스 정리
+	        dbClose(rs, pstmt, conn);
+	    }
+
+	    return exists;
+	}
 }
 	
 
