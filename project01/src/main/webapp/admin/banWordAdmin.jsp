@@ -3,7 +3,7 @@
     pageEncoding="UTF-8"%>
 <%@ page import="project01.admin.bean.AdminDAO" %>
 <%@ page import="java.util.List" %>
-
+<jsp:include page="../header.jsp" />
 <%
     AdminDAO dao = new AdminDAO();
     int currentPage = 1;

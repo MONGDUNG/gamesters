@@ -3,7 +3,7 @@
 <%@ page import="project01.board.bean.BoardDAO" %>
 <%@ page import="project01.board.bean.BoardDTO" %>
 <%@ page import="java.util.List" %>
-
+<jsp:include page="../header.jsp" />
 <%
 	String contextPath = request.getContextPath();	//절대경로필요(userPosts.jsp는 member폴더에 있고, viewBoard.jsp는 board폴더에 있으니까...)
 	//로그인 여부 확인

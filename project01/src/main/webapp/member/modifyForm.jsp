@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
     <% request.setCharacterEncoding("UTF-8"); %>
+    <jsp:include page="../header.jsp" />
 <h1>>수정하기</h1>
 
 <jsp:useBean id="dto" class="project01.member.bean.MemberDTO" />

@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ page import="project01.admin.bean.AdminDAO" %>
+<jsp:include page="../header.jsp" />
 <%
     String game = request.getParameter("game");
     String categoryName = request.getParameter("categoryName");

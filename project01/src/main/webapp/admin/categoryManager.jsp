@@ -2,7 +2,7 @@
     pageEncoding="UTF-8"%>
 <%@ page import="java.util.List" %>
 <%@ page import="project01.board.bean.BoardDAO" %>
-
+<jsp:include page="../header.jsp" />
 <%
     String game = request.getParameter("game");
 %>

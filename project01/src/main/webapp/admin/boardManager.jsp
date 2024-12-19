@@ -3,7 +3,7 @@
 <%@ page import="java.util.List" %>
 <%@ page import="project01.board.bean.BoardDAO" %>
 <%@ page import="project01.board.bean.BoardDTO" %>
-
+<jsp:include page="../header.jsp" />
 <!DOCTYPE html>
 <html>
 <head>

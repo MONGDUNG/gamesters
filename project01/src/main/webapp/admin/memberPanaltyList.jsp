@@ -2,7 +2,7 @@
 <%@ page import="project01.member.bean.MemberDTO" %>
 <%@ page import="project01.report.bean.ReportDAO" %>
 <%@ page import="java.util.List" %>
-
+<jsp:include page="../header.jsp" />
 <%
     int currentPage = 1;
     int limit = 10;
