@@ -17,7 +17,7 @@
 	
 
 	//페이지 나누기
-	int pageSize = 10;
+	int pageSize = 20;//한 페이지에 보여줄 게시글 수
 	String pageNum = request.getParameter("pageNum");	//null은 숫자로 바꾸지 못하니 String으로 받는다.
 	//밑에 a태그에서 보내는 값을 pageNum으로 받는다.
 	int currentPage = (pageNum == null) ? 1 : Integer.parseInt(pageNum);
