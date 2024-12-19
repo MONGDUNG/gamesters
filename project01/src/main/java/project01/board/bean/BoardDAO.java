@@ -291,24 +291,19 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 	        String baseSql = "SELECT COUNT(*) FROM " + game + "_BOARD";
 	        
 	        if(searchType != null && searchWord != null && !searchType.isEmpty() && !searchWord.isEmpty()) {
-	        	  if(searchType.equals("title")) {
-	        		  baseSql += " WHERE INSTR(title, ?) > 0";
-	        	  }else if(searchType.equals("nickname")){
-	        		  baseSql += " WHERE INSTR(nickname, ?) > 0";
-	        	  }else if(searchType.equals("content")) {
-	        		  baseSql += " WHERE INSTR(content, ?) > 0";
-	        	  }
+	        	 baseSql += " WHERE INSTR(" +searchType+ ", ?) > 0";
 	          }
 	        	        
 	        pstmt = conn.prepareStatement(baseSql);
 	        
-	        if(searchType != null && searchWord != null && !searchType.isEmpty() && !searchWord.isEmpty()) {
+	        if(searchType != null && searchWord != null && !searchWord.isEmpty()) {
 	        	pstmt.setString(1, searchWord);
 	        }
 	        
 	        rs = pstmt.executeQuery();
 	        if (rs.next()) {
 	            count = rs.getInt(1);
+	            System.out.println(count);
 	        }
 	    } catch (Exception e) {
 	        e.printStackTrace();
@@ -392,19 +387,43 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 	        dbClose(rs, pstmt, conn);
 	    }
 	}
-	//썸네일 이미지목록 + 제목 가져오기
-	public List<BoardDTO> getImageAndTitleList(String game, int start, int end) {
+	/////////////////////////////////2024-12-19 검색기능 추가//////////////////////////////////////////////////////////
+	//썸네일 이미지목록 + 제목 가져오기 + 검색기능 추가
+	public List<BoardDTO> getImageAndTitleList(String game, int start, int end, String searchType, String searchWord) {
 	    List<BoardDTO> list = new ArrayList<>();
 	    try {
 	        conn = getOracleConnection();
+	        String insertSql = "";
+	        
+	       
+	         //검색처리
+	        if(searchType != null && searchWord != null && !searchType.isEmpty() && !searchWord.isEmpty()) {
+	        	  if(searchType.equals("title")) {
+	        		  insertSql += " WHERE INSTR(title, ?) > 0";
+	        	  }else if(searchType.equals("nickname")){
+	        		  insertSql += " WHERE INSTR(nickname, ?) > 0";
+	        	  }else if(searchType.equals("content")) {
+	        		  insertSql += " WHERE INSTR(content, ?) > 0";
+	        	  }
+	          }
+	        
+	        String baseSql = "SELECT content, title, boardnum FROM " + game + "_image_board "+insertSql+" ORDER BY boardnum DESC";
+	        
+	        //페이징 처리
 	        sql = "SELECT * FROM ("
 	            + "    SELECT ROWNUM rnum, d.* FROM ("
-	            + "        SELECT content, title, boardnum FROM " + game + "_image_board ORDER BY boardnum DESC"
+	            + "       " + baseSql + " "
 	            + "    ) d WHERE ROWNUM <= ?"
 	            + ") WHERE rnum >= ?";
+	
 	        pstmt = conn.prepareStatement(sql);
-	        pstmt.setInt(1, end);   // ROWNUM <= end
-	        pstmt.setInt(2, start); // rnum >= start
+	        
+	        int paramIndex = 1;
+	        if(searchType != null && searchWord != null && !searchType.isEmpty() && !searchWord.isEmpty()) {
+	        	pstmt.setString(paramIndex++, searchWord);	        	
+	        }
+	        pstmt.setInt(paramIndex++, end);   // ROWNUM <= end
+	        pstmt.setInt(paramIndex, start); // rnum >= start
 	        rs = pstmt.executeQuery();
 	        Pattern imgPattern = Pattern.compile("<img\\s+[^>]*src\\s*=\\s*['\"]([^'\"]+)['\"][^>]*>");
 	        while (rs.next()) {
@@ -426,7 +445,40 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 	    }
 	    return list;
 	}
-
+	
+	//이미지 게시판 totalCount
+	
+	public int getImgTotalCount(String game, String searchType, String searchWord) {
+	    int count = 0;
+	    try {
+	        conn = getOracleConnection();
+	        String baseSql = "SELECT COUNT(*) FROM " + game + "_IMAGE_BOARD";
+	        
+	        if(searchType != null && searchWord != null && !searchType.isEmpty() && !searchWord.isEmpty()) {
+	        	 baseSql += " WHERE INSTR(" +searchType+ ", ?) > 0";
+	          }
+	        	        
+	        pstmt = conn.prepareStatement(baseSql);
+	        
+	        if(searchType != null && searchWord != null && !searchWord.isEmpty()) {
+	        	pstmt.setString(1, searchWord);
+	        }
+	        
+	        rs = pstmt.executeQuery();
+	        if (rs.next()) {
+	            count = rs.getInt(1);
+	            System.out.println(count);
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    } finally {
+	        dbClose(rs, pstmt, conn);
+	    }
+	    return count;
+	}
+	
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
 	// 썸네일 이미지목록 + 제목 가져오기 (BEST_BOARD에서 is_image = 1인 데이터)
 	public List<BoardDTO> getBestImageAndTitleList(int start, int end) {
 	    List<BoardDTO> list = new ArrayList<>();

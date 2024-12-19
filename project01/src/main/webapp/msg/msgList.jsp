@@ -1,4 +1,3 @@
-
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ page import="java.util.List" %>
@@ -17,76 +16,111 @@
 <%
     return;
 }
+
+String showUnreadParam = request.getParameter("showUnread");
+boolean showUnread = "true".equals(showUnreadParam);
+
+MsgDAO msgDAO = new MsgDAO();
+MemberDAO memberDAO = new MemberDAO();
+List<String> blockedMembers = memberDAO.getBlockedMembers(nick);
+
+List<MsgDTO> receivedMsgList = null;
+if (showUnread) {
+    receivedMsgList = msgDAO.getunCheckReceivedMessages(nick);
+} else {
+    receivedMsgList = msgDAO.getReceivedMessages(nick);
+}
 %>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>쪽지함</title>
 <!-- Bootstrap CSS -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+/* 읽지 않은 쪽지 스타일 */
+.unread-message {
+    background-color: #f8d7da;
+    font-weight: bold;
+}
+
+/* 읽은 쪽지 스타일 */
+.read-message {
+    background-color: #ffffff;
+}
+</style>
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    // 모든 메시지 행 가져오기
     const messageRows = document.querySelectorAll('.message-row');
 
     messageRows.forEach(row => {
       row.addEventListener('click', () => {
-        // 데이터 가져오기
         const sender = row.getAttribute('data-sender');
+        const receiver = row.getAttribute('data-receiver');
         const time = row.getAttribute('data-time');
         const message = row.getAttribute('data-message');
+        const msgNum = row.getAttribute('data-msgnum');
 
-        // 모달에 데이터 설정
+        fetch('checkMessageHandler.jsp?msgNum='+msgNum, {
+            method: 'get',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        })
+        .then(response => response.text())
+        .then(data => {
+            console.log('checkMsg 호출 결과:', data);
+        })
+        .catch(error => {
+            console.error('checkMsg 호출 중 오류:', error);
+        });
+
         document.getElementById('modalSender').textContent = sender;
         document.getElementById('modalTime').textContent = time;
         document.getElementById('modalMessage').textContent = message;
 
-        // 모달 열기
         const modal = new bootstrap.Modal(document.getElementById('messageModal'));
         modal.show();
       });
     });
 
-    // 답장 버튼 클릭 이벤트 추가
     document.getElementById('replyButton').addEventListener('click', () => {
-        const sender = document.getElementById('modalSender').textContent.trim(); // 발신자 정보 가져오기
+        const sender = document.getElementById('modalSender').textContent.trim();
         if (!sender) {
-            alert("보낸 사람 정보가 없습니다.") ;
+            alert("보낸 사람 정보가 없습니다.");
             return;
         }
-        const encodedSender = encodeURIComponent(sender); // URL 인코딩
-        location.href = 'sendMsg.jsp?receiver='+sender; // 답장 페이지로 이동
+        const encodedSender = encodeURIComponent(sender);
+        location.href = 'sendMsg.jsp?receiver='+sender;
     });
 
-    // 차단하기 버튼 클릭 이벤트 추가
     document.getElementById('blockButton').addEventListener('click', () => {
-        const sender = document.getElementById('modalSender').textContent.trim(); // 발신자 정보 가져오기
+        const sender = document.getElementById('modalSender').textContent.trim();
         if (!sender) {
             alert("보낸 사람 정보가 없습니다.");
             return;
         }
         if (confirm(sender + " 회원을 차단 하시겠습니까?")) {
-            const encodedSender = encodeURIComponent(sender); // URL 인코딩
-            location.href = 'blockMember.jsp?blocked_nick=' + encodedSender; // 차단 페이지로 이동
+            const encodedSender = encodeURIComponent(sender);
+            location.href = 'blockMember.jsp?blocked_nick=' + encodedSender;
         }
     });
 
-    // 삭제 버튼 클릭 이벤트 추가
     const deleteButtons = document.querySelectorAll('.btn-danger');
     deleteButtons.forEach(button => {
       button.addEventListener('click', (event) => {
-        event.stopPropagation(); // 이벤트 전파 중지
+        event.stopPropagation();
       });
     });
   });
-</script>
-<script>
- function openDeletePopup(msgNum, userType) {
-     window.open(`deleteMessage.jsp?msgNum=${msgNum}&userType=${userType}`, 'deletePopup', 'width=400,height=300');
- }
+
+  function openDeletePopup(msgNum, userType) {
+     window.open('deleteMessage.jsp?msgNum='+msgNum+'&userType='+userType, 'deletePopup', 'width=400,height=300');
+  }
+
 </script>
 </head>
 <body class="bg-light">
@@ -114,47 +148,54 @@
             <div class="card shadow-sm mt-3">
                 <div class="card-body">
                     <h3 class="text-center">받은 쪽지</h3>
+                    <!-- 안읽은 쪽지만 보기 체크박스 -->
+                    <form method="get" action="">
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="unreadOnly" name="showUnread" value="true" <%= showUnread ? "checked" : "" %> onchange="this.form.submit()">
+                            <label class="form-check-label" for="unreadOnly">안읽은 쪽지만 보기</label>
+                        </div>
+                    </form>
                     <table class="table table-hover">
                         <thead>
                             <tr>
                                 <th>보낸 사람</th>
                                 <th>내용</th>
                                 <th>보낸 시각</th>
+                                <th>삭제</th>
                             </tr>
                         </thead>
                        <tbody>
-      <%   MsgDAO msgDAO = new MsgDAO();
-         MemberDAO memberDAO = new MemberDAO();
-         List<String> blockedMembers = memberDAO.getBlockedMembers(nick);
-         List<MsgDTO> receivedMsgList = msgDAO.getReceivedMessages(nick);
+      <%
          for (MsgDTO msg : receivedMsgList) {
              if (blockedMembers.contains(msg.getSend_nick())) {
-                 continue; // 차단된 회원의 메시지는 건너뜀
+                 continue; 
              }
-             String fullMessage = msg.getMsg(); // 전체 메시지 가져오기
-             // 메시지를 15글자로 자르고, 초과하면 "..." 추가
+             String fullMessage = msg.getMsg();
              String shortMessage = (fullMessage != null && fullMessage.length() > 15)
                                      ? fullMessage.substring(0, 15) + "..."
                                      : fullMessage;
-     %>
+             int isChecked = msg.getCheckMsg();
+             String rowClass = (isChecked == 0) ? "unread-message" : "read-message";
+      %>
      <tr
-         class="message-row"
+         class="message-row <%= rowClass %>"
          data-sender="<%= msg.getSend_nick() %>"
+         data-receiver="<%= msg.getReceive_nick() %>"
          data-time="<%= msg.getReg() %>"
-         data-message="<%= fullMessage %>">
+         data-message="<%= fullMessage %>"
+         data-msgnum="<%= msg.getMsg_num()%>">
          <td><%= msg.getSend_nick() %></td>
-         <td><%= shortMessage %></td> <!-- 짧은 메시지만 표시 -->
+         <td><%= shortMessage %></td>
          <td><%= msg.getReg() %></td>
          <td>
           <form method="get" action="deleteMessage.jsp" target="deletePopup" onsubmit="window.open('', 'deletePopup', 'width=400,height=300');">
            <input type="hidden" name="msgNum" value="<%= msg.getMsg_num() %>">
            <input type="hidden" name="userType" value="receiver">
            <button type="submit" class="btn btn-danger">삭제</button>
-       </form>
-      </td>
+          </form>
+         </td>
      </tr>
-
-        <% }%>
+        <% } %>
      </tbody>
                     </table>
                 </div>
@@ -170,36 +211,35 @@
                                 <th>받는 사람</th>
                                 <th>내용</th>
                                 <th>보낸 시각</th>
+                                <th>삭제</th>
                             </tr>
                         </thead>
                         <tbody>
                           <%
          List<MsgDTO> sentMsgList = msgDAO.getSentMessages(nick);
          for (MsgDTO msg : sentMsgList) {
-             String fullMessage = msg.getMsg(); // 전체 메시지 가져오기
-             // 메시지를 15글자로 자르고, 초과하면 "..." 추가
+             String fullMessage = msg.getMsg();
              String shortMessage = (fullMessage != null && fullMessage.length() > 15)
                                      ? fullMessage.substring(0, 15) + "..."
                                      : fullMessage;
-     %>
+      %>
      <tr
          class="message-row"
          data-sender="<%= nick %>"
          data-time="<%= msg.getReg() %>"
          data-message="<%= fullMessage %>">
          <td><%= msg.getReceive_nick() %></td>
-         <td><%= shortMessage %></td> <!-- 짧은 메시지만 표시 -->
+         <td><%= shortMessage %></td>
          <td><%= msg.getReg() %></td>
          <td>
           <form method="get" action="deleteMessage.jsp" target="deletePopup" onsubmit="window.open('', 'deletePopup', 'width=400,height=300');">
            <input type="hidden" name="msgNum" value="<%= msg.getMsg_num() %>">
            <input type="hidden" name="userType" value="sender">
            <button type="submit" class="btn btn-danger">삭제</button>
-       </form>
-                        </td>
+          </form>
+         </td>
      </tr>
-
-        <% }%>
+        <% } %>
                         </tbody>
                     </table>
                 </div>
@@ -219,7 +259,6 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <!-- 메시지 내용 -->
         <p><strong>보낸 사람:</strong> <span id="modalSender"></span></p>
         <p><strong>보낸 시간:</strong> <span id="modalTime"></span></p>
         <p><strong>내용:</strong></p>

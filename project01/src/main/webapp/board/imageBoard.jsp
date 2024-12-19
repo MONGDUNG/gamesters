@@ -6,6 +6,8 @@
 <%
     String game = request.getParameter("game");
     String currentPageParam = request.getParameter("currentPage");
+    String searchType = request.getParameter("searchType");
+    String searchWord = request.getParameter("searchWord");
     if (game == null || game.isEmpty()) {
         out.println("게임 이름이 지정되지 않았습니다.");
         return;
@@ -17,9 +19,9 @@
     int end = currentPage * recordsPerPage; // 끝 게시글 번호
 
     BoardDAO boardDAO = new BoardDAO();
-    List<BoardDTO> boardList = boardDAO.getImageAndTitleList(game, start, end);
+    List<BoardDTO> boardList = boardDAO.getImageAndTitleList(game, start, end, searchType, searchWord);
 
-    int totalRecords = boardDAO.getTotalCount(game);
+    int totalRecords = boardDAO.getImgTotalCount(game, searchType, searchWord);
     int noOfPages = (int) Math.ceil((double) totalRecords / recordsPerPage);
 %>
 <!DOCTYPE html>
@@ -131,10 +133,25 @@ rgba(0, 0, 0, 0.1);
 	            </a>
             <% } %>
         </div>
+        
+        <form action="imageBoard.jsp" method="get" >
+            	<input type="hidden" name="game" value="<%= game %>" />
+            	<select name="searchType">
+            		<option value="nickname">닉네임</option>
+            		<option value="title">제목</option>
+            		<option value="content">내용</option>
+            	</select>
+            	<input type="text" name="searchWord" placeholder="검색어를 입력하세요"/>
+            	<button type="submit">검색</button>
+            </form>
+            
         <div class="pagination">
-            <% for (int i = 1; i <= noOfPages; i++) { %>
+            <% for (int i = 1; i <= noOfPages; i++) { 
+            	if(searchType != null && searchWord != null){%>
+            	<a href="imageBoard.jsp?game=<%= game %>&currentPage=<%= i %>&searchType=<%= searchType %>&searchWord=<%= searchWord %>"><%= i %></a>
+            	<% } else{%>
                 <a href="imageBoard.jsp?game=<%= game %>&currentPage=<%= i %>"><%= i %></a>
-            <% } %>
+            <% }} %>
         </div>
     </div>
 </body>
