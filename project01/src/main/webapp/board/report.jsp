@@ -4,6 +4,7 @@
 <%@ page import="java.sql.PreparedStatement"%>
 <%@ page import="java.sql.DriverManager"%>
 <%@ page import="java.sql.SQLException"%>
+<jsp:include page="../header.jsp" />
 <%
     String game = request.getParameter("game");
     int num = Integer.parseInt(request.getParameter("num"));

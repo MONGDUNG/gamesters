@@ -2,7 +2,7 @@
 <%@ page import="java.util.List" %>
 <%@ page import="project01.board.bean.BoardDAO" %>
 <%@ page import="project01.board.bean.BoardDTO" %>
-
+<jsp:include page="../header.jsp" />
 <%
     String ctx = request.getContextPath(); // 콘텍스트명 얻어오기
     String nick = (String) session.getAttribute("nick");

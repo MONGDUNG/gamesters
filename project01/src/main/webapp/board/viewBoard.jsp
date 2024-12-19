@@ -5,7 +5,7 @@
 <%@ page import="project01.board.bean.ReplyDTO" %>
 <%@ page import="project01.board.bean.ReplyDAO" %>
 <%@ page import="java.util.List"%>
-
+<jsp:include page="../header.jsp" />
 <%
 request.setCharacterEncoding("utf-8");
     int num = Integer.parseInt(request.getParameter("num"));
