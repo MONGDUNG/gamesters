@@ -27,7 +27,7 @@
         dtoList = dao.getReportAndSearchList(start, end, null, null);
     }
 
-    // 총 데이터 수 가져오기 (DAO 메서드 필요)
+    // 총 데이터 수 가져오기
     int totalRecords = dao.getTotalReportCount(searchType, searchWord);
     int totalPages = (int) Math.ceil((double) totalRecords / recordsPerPage);
 %>
