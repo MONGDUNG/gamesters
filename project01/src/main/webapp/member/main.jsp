@@ -4,6 +4,8 @@
 <%@ page import="project01.board.bean.BoardDTO" %>
 <%@ page import="project01.member.bean.MemberDAO" %>
 <%@ page import="project01.member.bean.MemberDTO" %>
+<%@ page import="project01.msg.bean.MsgDAO" %>
+<%@ page import="project01.msg.bean.MsgDTO" %>
 <%@ page import="java.util.List" %>
 <!DOCTYPE html>
 <html lang="en">
@@ -15,13 +17,13 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         .sticky-sidebar {
-		    position: sticky; /* 화면에 고정 */
-		    top: 20px; /* 상단 여백 설정 */
-		    z-index: 10; /* 다른 요소 위에 표시되도록 설정 */
-		    height: calc(100vh - 40px); /* 뷰포트 높이에서 상하 여백 차감 */
-		    overflow-y: auto; /* 내용이 길면 스크롤 가능하게 */
-		    background-color: #ffffff; /* 배경색 고정 */
-		}
+          position: sticky; /* 화면에 고정 */
+          top: 20px; /* 상단 여백 설정 */
+          z-index: 10; /* 다른 요소 위에 표시되도록 설정 */
+          height: calc(100vh - 40px); /* 뷰포트 높이에서 상하 여백 차감 */
+          overflow-y: auto; /* 내용이 길면 스크롤 가능하게 */
+          background-color: #ffffff; /* 배경색 고정 */
+      }
         img {
             max-width: 100%;
             height: auto;
@@ -95,19 +97,19 @@
                     </tbody>
                 </table>
                 <!-- 베스트 이미지 목록 -->
-				<h5 class="mb-3">베스트 이미지</h5>
-				<div class="d-flex overflow-auto">
-				    <%
-				    List<BoardDTO> bestImages = boardDAO.getBestImageAndTitleList(1, 20); // Fetch up to 20 best images
-				    for (BoardDTO imageUrl : bestImages) {
-				    %>
-				    <div class="p-2">
-				    	<a href="../board/viewBoard.jsp?game=<%= imageUrl.getGameName() %>&num=<%= imageUrl.getBoardnum() %>&type=image">
-				        <img src="<%= imageUrl.getContent() %>" alt="Best Image" class="img-thumbnail" style="max-width: 150px;">
-				        </a>
-				    </div>
-				    <% } %>
-				</div>
+            <h5 class="mb-3">베스트 이미지</h5>
+            <div class="d-flex overflow-auto">
+                <%
+                List<BoardDTO> bestImages = boardDAO.getBestImageAndTitleList(1, 20); // Fetch up to 20 best images
+                for (BoardDTO imageUrl : bestImages) {
+                %>
+                <div class="p-2">
+                   <a href="../board/viewBoard.jsp?game=<%= imageUrl.getGameName() %>&num=<%= imageUrl.getBoardnum() %>&type=image">
+                    <img src="<%= imageUrl.getContent() %>" alt="Best Image" class="img-thumbnail" style="max-width: 150px;">
+                    </a>
+                </div>
+                <% } %>
+            </div>
             </main>
 
             <!-- 사용자 정보 및 광고 -->
@@ -117,9 +119,13 @@
                 Integer admin = (Integer)(session.getAttribute("admin"));
                 MemberDAO memberDAO = new MemberDAO();
                 MemberDTO memberDTO = null;
+                MsgDAO msgDAO = new MsgDAO();
+                int unreadMsgCount = 0;
                 if (nick != null) {
                     memberDTO = memberDAO.memberId(nick);
+                    unreadMsgCount = msgDAO.getUnReadMsgCount(nick); // 읽지 않은 쪽지 개수 가져오기
                 }
+                
                 %>
 
                 <!-- 로그인 상태 -->
@@ -143,7 +149,8 @@
                             <a href="myPage.jsp" class="btn btn-outline-primary btn-sm me-2">회원정보</a>
                             <a href="logout.jsp" class="btn btn-outline-danger btn-sm me-2">로그아웃</a>
                             <a href="userPosts.jsp?profileNick=<%= nick %>" class="btn btn-outline-secondary btn-sm me-2">내 게시물</a>
-                            <a href="../msg/msgList.jsp" class="btn btn-outline-secondary btn-sm">쪽지함</a>
+                            <a href="../msg/msgList.jsp" class="btn btn-outline-secondary btn-sm">
+                            쪽지함 <span class="badge bg-danger"><%= unreadMsgCount %></span></a>
                             <% if (admin != null && admin == 1) { %>
                                 <a href="../admin/adminMain.jsp" class="btn btn-warning btn-sm mt-2">관리자 페이지</a>
                             <% } %>
