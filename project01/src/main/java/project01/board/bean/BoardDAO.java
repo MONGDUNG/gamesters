@@ -20,6 +20,7 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 	private ResultSet rs = null;
 	private String sql = null;
 	
+	// 전체 게시판 목록 가져오기
 	public List<BoardDTO> getAllBoardGames() {	
         List<BoardDTO> boardGames = new ArrayList<>();
         try {
@@ -60,8 +61,8 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 	}
 	
 	
-	//////////////////////////////////////////////2024-12-18 검색기능을 추가한 메서드로 변경////////////////////////////////////////////////////////
-	public List<BoardDTO> getBoardList(String game, int start, int end, String searchType, String searchWord) {   // 게시글 목록 가져오기 & 검색기능
+	// 게시글 목록 가져오기 & 검색기능
+	public List<BoardDTO> getBoardList(String game, int start, int end, String searchType, String searchWord) {   
 	       List<BoardDTO> list0 = new ArrayList<>();
 	       try {
 	          conn = getOracleConnection();
@@ -122,9 +123,8 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 	       }
 	       return list0;
 	   }
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	public List<BoardDTO> getBoardList1(String game, int start, int end) {   // 게시글 목록 가져오기
+	// 게시글 목록 가져오기
+	public List<BoardDTO> getBoardList1(String game, int start, int end) {   
 	       List<BoardDTO> list1 = new ArrayList<>();
 	       try {
 	          
@@ -162,8 +162,8 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 	       }
 	       return list1;
 	   }
-	
-	 public void upOrder(int boardnum, String game) {		//게시글올리기
+	//게시글올리기
+	 public void upOrder(int boardnum, String game) {		
 	      try {
 	         conn = getOracleConnection();
 	         sql = "UPDATE " + game + "_BOARD SET order_col = 1 WHERE boardnum = ?";
@@ -176,7 +176,8 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 	         dbClose(rs, pstmt, conn);
 	      }
 	   }
-	 public void downOrder(int boardnum, String game) {		//게시글 내리기
+	//게시글 내리기
+	 public void downOrder(int boardnum, String game) {		
 	      try {
 	         conn = getOracleConnection();
 	         sql = "UPDATE " + game + "_BOARD SET order_col = 0 WHERE boardnum = ?";
@@ -211,7 +212,7 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 
 	 
 
-	public List<BoardDTO> getCategoryBoardList(String game, int start, int end, String category) { // 해당 카테고리의 게시글 목록 가져오기
+	public List<BoardDTO> getCategoryBoardList(String game, int start, int end, String category) { 
 	    List<BoardDTO> list = new ArrayList<>();
 	    try {
 	        conn = getOracleConnection();
@@ -246,7 +247,8 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 	    }
 	    return list;
 	}
-	public List<BoardDTO> getBestBoardList(int start, int end) {			// 베스트 게시글 목록 가져오기
+	// 베스트 게시글 목록 가져오기
+	public List<BoardDTO> getBestBoardList(int start, int end) {			
 	    List<BoardDTO> list = new ArrayList<>();	
 	    try {
 	        conn = getOracleConnection();
@@ -283,7 +285,7 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 	    return list;
 	}
 	
-	//////////////////////////////////////2024-12-19 수정/////////////////////////////////
+	//전체 게시글 수 가져오기
 	public int getTotalCount(String game, String searchType, String searchWord) {
 	    int count = 0;
 	    try {
@@ -311,8 +313,8 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 	    }
 	    return count;
 	}
-	//////////////////////////////////////////////////////////////////////////////////////////
-	public void boardInsert(BoardDTO dto, String game, String category) {  // 게시글 작성
+	// 게시글 작성
+	public void boardInsert(BoardDTO dto, String game, String category) {  
 	    try {
 	        conn = getOracleConnection();
 
@@ -349,6 +351,7 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 	        dbClose(rs, pstmt, conn);
 	    }
 	}
+	//이미지 게시판 작성
 	public void imageBoardInsert(BoardDTO dto) {
 		String game = dto.getGameName();
 		try {
@@ -386,7 +389,7 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 	        dbClose(rs, pstmt, conn);
 	    }
 	}
-	/////////////////////////////////2024-12-19 검색기능 추가//////////////////////////////////////////////////////////
+	
 	//썸네일 이미지목록 + 제목 가져오기 + 검색기능 추가
 	public List<BoardDTO> getImageAndTitleList(String game, int start, int end, String searchType, String searchWord) {
 	    List<BoardDTO> list = new ArrayList<>();
@@ -475,7 +478,6 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 	    return count;
 	}
 	
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	// 썸네일 이미지목록 + 제목 가져오기 (BEST_BOARD에서 is_image = 1인 데이터)
 	public List<BoardDTO> getBestImageAndTitleList(int start, int end) {
@@ -516,51 +518,52 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 	    return list;
 	}
 	//POST_RECORD에 삽입
-		public void postRecord(BoardDTO dto, String game, String nick) { 
-			try {
-				int boardNum = callBoardNum(game); //보드넘 가져오는 메서드
-		        
-		        //오류 확인
-		        if(boardNum == 0) {
-		        	System.out.println("게시글 내역 기록 오류. BoardDAO의 postRecord 메서드, post_Records DB 확인 바람.");
-		        }
-				conn = getOracleConnection();
-				sql = "INSERT INTO post_record (game, nickname, title, boardnum) VALUES (?, ?, ?, ?)";
-		        pstmt = conn.prepareStatement(sql);
-		        pstmt.setString(1, game);
-		        pstmt.setString(2, nick);
-		        pstmt.setString(3, dto.getTitle());
-		        pstmt.setInt(4, boardNum);
-		        pstmt.executeUpdate();
+	public void postRecord(BoardDTO dto, String game, String nick) { 
+		try {
+			int boardNum = callBoardNum(game); //보드넘 가져오는 메서드
+	        
+	        //오류 확인
+	        if(boardNum == 0) {
+	        	System.out.println("게시글 내역 기록 오류. BoardDAO의 postRecord 메서드, post_Records DB 확인 바람.");
+	        }
+			conn = getOracleConnection();
+			sql = "INSERT INTO post_record (game, nickname, title, boardnum) VALUES (?, ?, ?, ?)";
+	        pstmt = conn.prepareStatement(sql);
+	        pstmt.setString(1, game);
+	        pstmt.setString(2, nick);
+	        pstmt.setString(3, dto.getTitle());
+	        pstmt.setInt(4, boardNum);
+	        pstmt.executeUpdate();
 		      	 
-			}catch(Exception e) {
-				e.printStackTrace();
-			}finally {
-				dbClose(rs, pstmt, conn);
-			}
+		}catch(Exception e) {
+			e.printStackTrace();
+		}finally {
+			dbClose(rs, pstmt, conn);
 		}
-		
-		public int callBoardNum(String game) {
-			int bNumber = 0;
-			try {
-				conn = getOracleConnection();
-				
-		        //보드넘 가져오기
-		        sql = "SELECT NVL(MAX(boardnum), 0) FROM " + game + "_BOARD";
-		        pstmt = conn.prepareStatement(sql);
-		        rs = pstmt.executeQuery();
-		        if(rs.next()) {
-		        	bNumber = rs.getInt(1);
-		        }
+	}
+	//게시글 번호 불러오기
+	public int callBoardNum(String game) {
+		int bNumber = 0;
+		try {
+			conn = getOracleConnection();
+			
+	        //보드넘 가져오기
+	        sql = "SELECT NVL(MAX(boardnum), 0) FROM " + game + "_BOARD";
+	        pstmt = conn.prepareStatement(sql);
+	        rs = pstmt.executeQuery();
+	        if(rs.next()) {
+	        	bNumber = rs.getInt(1);
+	        }
+	        
 		        
-		        
-			}catch(Exception e) {
-				e.printStackTrace();
-			}finally {
-				dbClose(rs, pstmt, conn);
-			}
-			return bNumber;
+		}catch(Exception e) {
+			e.printStackTrace();
+		}finally {
+			dbClose(rs, pstmt, conn);
 		}
+		return bNumber;
+	}
+		//게시글 읽기
 	public BoardDTO readNum(int num, String game, String type) {
 		BoardDTO dto = new BoardDTO();
 		try {
@@ -600,6 +603,7 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 		}
 		return dto;
 	}
+	// 게시글 추천/비추천
 	public boolean vote(int boardnum, String nickname, String voteType, String game, String type) {
 	    boolean success = false;
 	    try {
@@ -686,6 +690,7 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 	    }
 	    return success;
 	}
+	//베스트 게시글 목록 가져오기
 	public List<BoardDTO> getTopVotedBoardList(String game, int start, int end, String type) {
 	    List<BoardDTO> list = new ArrayList<>();
 	    try {
@@ -726,8 +731,8 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 	    }
 	    return list;
 	}
-
-	public void boardUpdate(BoardDTO dto, String type) {		// 게시글 수정
+	// 게시글 수정
+	public void boardUpdate(BoardDTO dto, String type) {		
 		String game = dto.getGameName();
 		String category = dto.getCategory();
         try {
@@ -771,8 +776,8 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 	}
 
 	
-	
-	public void boardDelete(int boardnum, String game, String type) {		// 게시글 삭제
+	// 게시글 삭제
+	public void boardDelete(int boardnum, String game, String type) {		
 		try {
 			conn = getOracleConnection();
 			if(type.equals("normal")) {
