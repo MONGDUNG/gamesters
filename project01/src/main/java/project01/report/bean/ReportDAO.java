@@ -86,7 +86,7 @@ public class ReportDAO extends DataBaseConnection{
 			sql = "update member set warn_stack = warn_stack + 1";
 
 			if(warnStack == 0) {
-				sql = sql + "where nickname = ?";
+				
 			}else if(warnStack == 1) {
 				sql = sql + ",is_banned = 1, unban_date = trunc(sysdate + 1) ";
 			}else if(warnStack == 2) {

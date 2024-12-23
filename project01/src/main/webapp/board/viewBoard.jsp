@@ -202,7 +202,7 @@ request.setCharacterEncoding("utf-8");
 </head>
 <body>
     <div class="container">
-        <h1><a href="board.jsp?game=<%= game %>"><%= game %> 게시판</a></h1>
+        <h1><a href="board.jsp?game=<%= game %>"><%= game %> 포럼</a></h1>
         <table>
             <tr>
                 <th>번호</th>

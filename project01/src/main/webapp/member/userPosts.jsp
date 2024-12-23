@@ -5,27 +5,27 @@
 <%@ page import="java.util.List" %>
 <jsp:include page="../header.jsp" />
 <%
-	String contextPath = request.getContextPath();	//절대경로필요(userPosts.jsp는 member폴더에 있고, viewBoard.jsp는 board폴더에 있으니까...)
 	//로그인 여부 확인
 	String nick = request.getParameter("profileNick");
+	String currentPageParam = request.getParameter("currentPage");
+	String searchType = request.getParameter("searchType");
+	String searchWord = request.getParameter("searchWord");
 	
-	BoardDTO dto = new BoardDTO();						//게시판에서 쓸 DB꺼내기
-	BoardDAO dao = new BoardDAO();
+	String contextPath = request.getContextPath(); //다른 폴더의 jsp로 연결 가능하게 함
 	
-	
-	//List<BoardDTO> postList = dao.getUserPosts(nick);	//DB대입
 	
 
 	//페이지 나누기
-	int pageSize = 20;//한 페이지에 보여줄 게시글 수
-	String pageNum = request.getParameter("pageNum");	//null은 숫자로 바꾸지 못하니 String으로 받는다.
-	//밑에 a태그에서 보내는 값을 pageNum으로 받는다.
-	int currentPage = (pageNum == null) ? 1 : Integer.parseInt(pageNum);
-	int start = (currentPage - 1) * pageSize + 1;
-	int end = currentPage * pageSize;
+	int recordsPerPage = 10;
+	int currentPage = (currentPageParam == null) ? 1 : Integer.parseInt(currentPageParam);
+	int start = (currentPage - 1) * recordsPerPage + 1;
+	int end = currentPage * recordsPerPage;
 	
-	List<BoardDTO> postpage = dao.postList(nick, start, end);
-	int count = dao.postCount(nick);	//유저가 쓴 글 전체 갯수
+	BoardDAO dao = new BoardDAO();
+	
+	List<BoardDTO> postpage = dao.searchPost(nick, start, end, searchType, searchWord);
+	int totalRecords = dao.postCount(nick, searchType, searchWord);	//유저가 쓴 글 전체 갯수
+	int noOfPages = (int) Math.ceil((double) totalRecords / recordsPerPage);
 	
 %>
 
@@ -69,58 +69,35 @@
                 </tbody>
             </table>
         </div>
-
-        <!-- 페이지네이션 -->
-        <% if(count > 0) { 
-            int pageCount = count / pageSize + (count % pageSize == 0 ? 0 : 1);
-            int startPage = (currentPage / 10) * 10 + 1;
-            int pageBlock = 10;
-            int endPage = startPage + pageBlock - 1;
-            if(endPage > pageCount) {
-                endPage = pageCount;
-            }
-        %>
-        <nav aria-label="Page navigation" class="my-4">
-            <ul class="pagination justify-content-center">
-                <% if(startPage > 10) { %>
-                    <li class="page-item">
-                        <a class="page-link" href="userPosts.jsp?pageNum=<%=startPage - 10%>&profileNick=<%= nick%>">이전</a>
-                    </li>
-                <% } %>
-                
-                <% for(int i = startPage ; i <= endPage ; i++) { %>
-                    <li class="page-item <%= (i == currentPage) ? "active" : "" %>">
-                        <a class="page-link" href="userPosts.jsp?pageNum=<%=i%>&profileNick=<%= nick%>"><%=i%></a>
-                    </li>
-                <% } %>
-                
-                <% if(endPage < pageCount) { %>
-                    <li class="page-item">
-                        <a class="page-link" href="userPosts.jsp?pageNum=<%=startPage+10%>&profileNick=<%= nick%>">다음</a>
-                    </li>
-                <% } %>
-            </ul>
-        </nav>
-        <% } %>
-
+       
         <!-- 검색 폼 -->
         <div class="card mt-4">
             <div class="card-body">
-                <form action="<%= contextPath %>/board/PostSearch.jsp" method="post" class="row g-3">
+                <form action="userPosts.jsp" method="get" class="row g-3">
                     <div class="col-auto">
+                    	<input type="hidden" name="profileNick" value="<%= nick %>" />
                         <select name="searchType" class="form-select">    
                             <option value="game">게임</option>
                             <option value="title">제목</option>
                         </select>
                     </div>
                     <div class="col-auto">
-                        <input type="text" name="searchKeyword" class="form-control" placeholder="검색어 입력" />
+                        <input type="text" name="searchWord" class="form-control" placeholder="검색어를 입력하세요" />
                     </div>
                     <div class="col-auto">
                         <button type="submit" class="btn btn-primary">검색</button>
                     </div>
                 </form>
             </div>
+        </div>
+        <div class="pagination">        
+        <% 
+        	for(int i = 1 ; i <= noOfPages; i++){
+        		if(searchType != null && searchWord != null){%>
+        		<a href="userPosts.jsp?&currentPage=<%= i %>&searchType="<%= searchType %>&searchWord="<%= searchWord %>"><%= i %></a>
+        		<% }else {%>
+        		<a href="userPosts.jsp?&currentPage=<%= i %>"><%= i %></a>
+        	<% } }%>
         </div>
     </div>
 

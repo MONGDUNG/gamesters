@@ -20,7 +20,6 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 	private ResultSet rs = null;
 	private String sql = null;
 	
-	// 전체 게시판 목록 가져오기
 	public List<BoardDTO> getAllBoardGames() {	
         List<BoardDTO> boardGames = new ArrayList<>();
         try {
@@ -61,8 +60,8 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 	}
 	
 	
-	// 게시글 목록 가져오기 & 검색기능
-	public List<BoardDTO> getBoardList(String game, int start, int end, String searchType, String searchWord) {   
+	//////////////////////////////////////////////2024-12-18 검색기능을 추가한 메서드로 변경////////////////////////////////////////////////////////
+	public List<BoardDTO> getBoardList(String game, int start, int end, String searchType, String searchWord) {   // 게시글 목록 가져오기 & 검색기능
 	       List<BoardDTO> list0 = new ArrayList<>();
 	       try {
 	          conn = getOracleConnection();
@@ -123,8 +122,9 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 	       }
 	       return list0;
 	   }
-	// 게시글 목록 가져오기
-	public List<BoardDTO> getBoardList1(String game, int start, int end) {   
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	public List<BoardDTO> getBoardList1(String game, int start, int end) {   // 게시글 목록 가져오기
 	       List<BoardDTO> list1 = new ArrayList<>();
 	       try {
 	          
@@ -162,8 +162,8 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 	       }
 	       return list1;
 	   }
-	//게시글올리기
-	 public void upOrder(int boardnum, String game) {		
+	
+	 public void upOrder(int boardnum, String game) {		//게시글올리기
 	      try {
 	         conn = getOracleConnection();
 	         sql = "UPDATE " + game + "_BOARD SET order_col = 1 WHERE boardnum = ?";
@@ -176,8 +176,7 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 	         dbClose(rs, pstmt, conn);
 	      }
 	   }
-	//게시글 내리기
-	 public void downOrder(int boardnum, String game) {		
+	 public void downOrder(int boardnum, String game) {		//게시글 내리기
 	      try {
 	         conn = getOracleConnection();
 	         sql = "UPDATE " + game + "_BOARD SET order_col = 0 WHERE boardnum = ?";
@@ -212,7 +211,7 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 
 	 
 
-	public List<BoardDTO> getCategoryBoardList(String game, int start, int end, String category) { 
+	public List<BoardDTO> getCategoryBoardList(String game, int start, int end, String category) { // 해당 카테고리의 게시글 목록 가져오기
 	    List<BoardDTO> list = new ArrayList<>();
 	    try {
 	        conn = getOracleConnection();
@@ -247,8 +246,7 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 	    }
 	    return list;
 	}
-	// 베스트 게시글 목록 가져오기
-	public List<BoardDTO> getBestBoardList(int start, int end) {			
+	public List<BoardDTO> getBestBoardList(int start, int end) {			// 베스트 게시글 목록 가져오기
 	    List<BoardDTO> list = new ArrayList<>();	
 	    try {
 	        conn = getOracleConnection();
@@ -285,7 +283,7 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 	    return list;
 	}
 	
-	//전체 게시글 수 가져오기
+	//////////////////////////////////////2024-12-19 수정/////////////////////////////////
 	public int getTotalCount(String game, String searchType, String searchWord) {
 	    int count = 0;
 	    try {
@@ -305,6 +303,7 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 	        rs = pstmt.executeQuery();
 	        if (rs.next()) {
 	            count = rs.getInt(1);
+	            System.out.println(count);
 	        }
 	    } catch (Exception e) {
 	        e.printStackTrace();
@@ -313,8 +312,8 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 	    }
 	    return count;
 	}
-	// 게시글 작성
-	public void boardInsert(BoardDTO dto, String game, String category) {  
+	//////////////////////////////////////////////////////////////////////////////////////////
+	public void boardInsert(BoardDTO dto, String game, String category) {  // 게시글 작성
 	    try {
 	        conn = getOracleConnection();
 
@@ -351,7 +350,6 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 	        dbClose(rs, pstmt, conn);
 	    }
 	}
-	//이미지 게시판 작성
 	public void imageBoardInsert(BoardDTO dto) {
 		String game = dto.getGameName();
 		try {
@@ -389,7 +387,7 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 	        dbClose(rs, pstmt, conn);
 	    }
 	}
-	
+	/////////////////////////////////2024-12-19 검색기능 추가//////////////////////////////////////////////////////////
 	//썸네일 이미지목록 + 제목 가져오기 + 검색기능 추가
 	public List<BoardDTO> getImageAndTitleList(String game, int start, int end, String searchType, String searchWord) {
 	    List<BoardDTO> list = new ArrayList<>();
@@ -469,6 +467,7 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 	        rs = pstmt.executeQuery();
 	        if (rs.next()) {
 	            count = rs.getInt(1);
+	            System.out.println(count);
 	        }
 	    } catch (Exception e) {
 	        e.printStackTrace();
@@ -478,6 +477,7 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 	    return count;
 	}
 	
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	// 썸네일 이미지목록 + 제목 가져오기 (BEST_BOARD에서 is_image = 1인 데이터)
 	public List<BoardDTO> getBestImageAndTitleList(int start, int end) {
@@ -518,52 +518,51 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 	    return list;
 	}
 	//POST_RECORD에 삽입
-	public void postRecord(BoardDTO dto, String game, String nick) { 
-		try {
-			int boardNum = callBoardNum(game); //보드넘 가져오는 메서드
-	        
-	        //오류 확인
-	        if(boardNum == 0) {
-	        	System.out.println("게시글 내역 기록 오류. BoardDAO의 postRecord 메서드, post_Records DB 확인 바람.");
-	        }
-			conn = getOracleConnection();
-			sql = "INSERT INTO post_record (game, nickname, title, boardnum) VALUES (?, ?, ?, ?)";
-	        pstmt = conn.prepareStatement(sql);
-	        pstmt.setString(1, game);
-	        pstmt.setString(2, nick);
-	        pstmt.setString(3, dto.getTitle());
-	        pstmt.setInt(4, boardNum);
-	        pstmt.executeUpdate();
-		      	 
-		}catch(Exception e) {
-			e.printStackTrace();
-		}finally {
-			dbClose(rs, pstmt, conn);
-		}
-	}
-	//게시글 번호 불러오기
-	public int callBoardNum(String game) {
-		int bNumber = 0;
-		try {
-			conn = getOracleConnection();
-			
-	        //보드넘 가져오기
-	        sql = "SELECT NVL(MAX(boardnum), 0) FROM " + game + "_BOARD";
-	        pstmt = conn.prepareStatement(sql);
-	        rs = pstmt.executeQuery();
-	        if(rs.next()) {
-	        	bNumber = rs.getInt(1);
-	        }
-	        
+		public void postRecord(BoardDTO dto, String game, String nick) { 
+			try {
+				int boardNum = callBoardNum(game); //보드넘 가져오는 메서드
 		        
-		}catch(Exception e) {
-			e.printStackTrace();
-		}finally {
-			dbClose(rs, pstmt, conn);
+		        //오류 확인
+		        if(boardNum == 0) {
+		        	System.out.println("게시글 내역 기록 오류. BoardDAO의 postRecord 메서드, post_Records DB 확인 바람.");
+		        }
+				conn = getOracleConnection();
+				sql = "INSERT INTO post_record (game, nickname, title, boardnum) VALUES (?, ?, ?, ?)";
+		        pstmt = conn.prepareStatement(sql);
+		        pstmt.setString(1, game);
+		        pstmt.setString(2, nick);
+		        pstmt.setString(3, dto.getTitle());
+		        pstmt.setInt(4, boardNum);
+		        pstmt.executeUpdate();
+		      	 
+			}catch(Exception e) {
+				e.printStackTrace();
+			}finally {
+				dbClose(rs, pstmt, conn);
+			}
 		}
-		return bNumber;
-	}
-		//게시글 읽기
+		
+		public int callBoardNum(String game) {
+			int bNumber = 0;
+			try {
+				conn = getOracleConnection();
+				
+		        //보드넘 가져오기
+		        sql = "SELECT NVL(MAX(boardnum), 0) FROM " + game + "_BOARD";
+		        pstmt = conn.prepareStatement(sql);
+		        rs = pstmt.executeQuery();
+		        if(rs.next()) {
+		        	bNumber = rs.getInt(1);
+		        }
+		        
+		        
+			}catch(Exception e) {
+				e.printStackTrace();
+			}finally {
+				dbClose(rs, pstmt, conn);
+			}
+			return bNumber;
+		}
 	public BoardDTO readNum(int num, String game, String type) {
 		BoardDTO dto = new BoardDTO();
 		try {
@@ -603,7 +602,6 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 		}
 		return dto;
 	}
-	// 게시글 추천/비추천
 	public boolean vote(int boardnum, String nickname, String voteType, String game, String type) {
 	    boolean success = false;
 	    try {
@@ -690,7 +688,6 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 	    }
 	    return success;
 	}
-	//베스트 게시글 목록 가져오기
 	public List<BoardDTO> getTopVotedBoardList(String game, int start, int end, String type) {
 	    List<BoardDTO> list = new ArrayList<>();
 	    try {
@@ -731,8 +728,8 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 	    }
 	    return list;
 	}
-	// 게시글 수정
-	public void boardUpdate(BoardDTO dto, String type) {		
+
+	public void boardUpdate(BoardDTO dto, String type) {		// 게시글 수정
 		String game = dto.getGameName();
 		String category = dto.getCategory();
         try {
@@ -776,8 +773,8 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 	}
 
 	
-	// 게시글 삭제
-	public void boardDelete(int boardnum, String game, String type) {		
+	
+	public void boardDelete(int boardnum, String game, String type) {		// 게시글 삭제
 		try {
 			conn = getOracleConnection();
 			if(type.equals("normal")) {
@@ -818,20 +815,40 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 		}
 		return category;
 	}
-	//유저가 쓴 게시글 검색 & 페이징
-		public List<BoardDTO> searchPost(String nick, String st, String sk, int start, int end){
-			List<BoardDTO> list = new ArrayList<>();
+	
+	////////////////////////////////////////2024-12-19 수정///////////////////////////////////////////
+	//내 게시글 검색 & 페이징
+		public List<BoardDTO> searchPost(String nick, int start, int end, String searchType, String searchWord){
+			List<BoardDTO> searchList = new ArrayList<>();
 			try {
 				conn = getOracleConnection();
-				sql = "SELECT * FROM "
-						+ "(SELECT F.*, ROWNUM R FROM "
-						+ "(SELECT * FROM post_record WHERE nickname=? and "
-						+ st + " like '%" + sk + "%' ORDER BY reg DESC) F) "
-						+ "WHERE R >= ? AND R <= ?";
+				
+				String insertSql = "";
+				String baseSql = "SELECT * FROM post_record WHERE nickname=? ";
+				
+				//검색 조건
+				if(searchType != null && searchWord != null && !searchWord.isEmpty()) {
+					insertSql = "AND INSTR(" + searchType + ", ?) > 0 ";
+				}
+				
+				baseSql += insertSql + "ORDER BY reg DESC";
+				
+				//페이징 처리
+				sql = "SELECT * FROM ("
+						+ " SELECT F.*, ROWNUM R FROM ("
+						+ " " +baseSql+ " "
+						+ ") F WHERE ROWNUM >= ?) WHERE R <= ?";
+								
 				pstmt = conn.prepareStatement(sql);
-				pstmt.setString(1, nick);
-				pstmt.setInt(2, start);
-				pstmt.setInt(3, end);
+				int paramIndex = 1;
+				
+				pstmt.setString(paramIndex++, nick);
+				if(searchType != null && searchType != null && !searchWord.isEmpty()) {
+					pstmt.setString(paramIndex++, searchWord);
+				}
+				
+				pstmt.setInt(paramIndex++, start);
+				pstmt.setInt(paramIndex, end);
 				rs = pstmt.executeQuery();
 				while(rs.next()) {
 					BoardDTO dto = new BoardDTO();
@@ -839,26 +856,37 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 					dto.setTitle(rs.getString("title"));
 					dto.setBoardnum(rs.getInt("boardnum"));
 					dto.setReg(rs.getString("reg"));
-					list.add(dto);
+					searchList.add(dto);
 				}
 			}catch(Exception e) {
 				e.printStackTrace();
 			}finally {
 				dbClose(rs, pstmt, conn);
 			}
-			return list;
+			return searchList;
 		}
 		
-		//검색 게시글 세기
-			public int searchCount(String nick, String st, String sk) {
+		//내 게시글 세기
+			public int postCount(String nick, String searchType, String searchWord) {
 				int result = 0;
 				try {			
 					conn = getOracleConnection();
-					sql = "SELECT COUNT(*) FROM "
-							+ "(SELECT * FROM post_record WHERE nickname=? AND "
-							+ st + " like '%" + sk + "%' ORDER BY reg DESC)";
-					pstmt = conn.prepareStatement(sql);
-					pstmt.setString(1, nick);
+					
+					String insertSql = " ";
+					String baseSql = "SELECT COUNT(*) FROM post_record WHERE nickname=? ";
+					
+					if(searchWord != null && !searchWord.isEmpty()) {
+						insertSql = " AND INSTR(" +searchType+ ", ?) > 0 ";
+					}
+					baseSql += insertSql;
+										
+					pstmt = conn.prepareStatement(baseSql);
+					
+					int paramIndex = 1;
+						pstmt.setString(paramIndex++, nick);
+					if(searchWord != null && !searchWord.isEmpty()) {
+						pstmt.setString(paramIndex, searchWord);
+					}
 					rs = pstmt.executeQuery();
 					if(rs.next()) {
 						result = rs.getInt(1);
@@ -871,55 +899,4 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 				return result;
 			}
 
-		
-		//유저가 쓴 게시글 리스트 & 페이징
-		public List<BoardDTO> postList(String nick, int start, int end){
-			List<BoardDTO> list = new ArrayList<>();
-			try {
-				conn = getOracleConnection();
-				sql = "SELECT * FROM "
-						+ "(SELECT F.*, ROWNUM R FROM "
-						+ "(SELECT * FROM post_record WHERE nickname =? ORDER BY reg DESC) F) "
-						+ "WHERE R >= ? AND R <= ?";
-				pstmt = conn.prepareStatement(sql);
-				pstmt.setString(1, nick);
-				pstmt.setInt(2, start);
-				pstmt.setInt(3, end);
-				rs = pstmt.executeQuery();
-				while(rs.next()) {
-					BoardDTO dto = new BoardDTO();
-					dto.setGameName(rs.getString("game"));
-					dto.setNickname(nick);
-					dto.setTitle(rs.getString("title"));
-					dto.setReg(rs.getString("reg"));
-					dto.setBoardnum(rs.getInt("boardnum"));
-					list.add(dto);
-				}
-			}catch(Exception e) {
-				e.printStackTrace();
-			}finally {
-				dbClose(rs, pstmt, conn);
-			}
-			return list;
-		}
-		
-		//유저가 쓴 게시글 세기
-		public int postCount(String nick) {
-			int result = 0;
-			try {			
-				conn = getOracleConnection();
-				sql = "SELECT COUNT(*) FROM post_record WHERE nickname=?";
-				pstmt = conn.prepareStatement(sql);
-				pstmt.setString(1, nick);
-				rs = pstmt.executeQuery();
-				if(rs.next()) {
-					result = rs.getInt(1);
-				}
-			}catch(Exception e) {
-				e.printStackTrace();
-			}finally {
-				dbClose(rs, pstmt, conn);
-			}
-			return result;
-		}
 }
