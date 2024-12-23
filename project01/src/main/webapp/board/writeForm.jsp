@@ -134,7 +134,22 @@
             });
 
             $("#save").click(function () {
+            	//스마트에디터의 내용을 textarea에 반영
                 oEditors.getById["ir1"].exec("UPDATE_CONTENTS_FIELD", []);
+                
+                var title = $("#title").val().trim();
+                var content = $("#ir1").val().trim();
+                
+                if(title.length < 2){
+                	alert("제목은 최소 2글자 이상이어야 합니다.");
+                	return;
+                }
+                
+                if(content.length < 5 || content === "<p>&nbsp;</p>" || content === ""){
+                	alert("내용은 최소 5글자 이상이어야 합니다.");
+                	return;
+                }
+              
                 $("#frm").submit();
             });
 
