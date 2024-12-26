@@ -32,7 +32,7 @@ public class ReplyDAO extends DataBaseConnection{
 	        pstmt.close();                                       // PreparedStatement 닫기
 
 	        // 댓글 추가
-	        sql = "insert into reply values(reply_seq.nextval, ?, ?, sysdate, 0, 0, ?, 0, ?, ?)";
+	        sql = "insert into reply values(reply_seq.nextval, ?, ?, sysdate, ?, 0, ?, ?)";
 	        pstmt = conn.prepareStatement(sql);                  // 새로운 PreparedStatement 생성
 	        pstmt.setString(1, game);                            // 게임 이름
 	        pstmt.setInt(2, dto.getBoardnum());                  // 게시글 번호
@@ -65,7 +65,7 @@ public class ReplyDAO extends DataBaseConnection{
 	        pstmt.close();                                       // PreparedStatement 닫기
 
 	        // 댓글 추가
-	        sql = "insert into reply values(reply_seq.nextval, ?, ?, sysdate, 0, 0, ?, ?, ?, ?)";
+	        sql = "insert into reply values(reply_seq.nextval, ?, ?, sysdate, ?, ?, ?, ?)";
 	        pstmt = conn.prepareStatement(sql);                  // 새로운 PreparedStatement 생성
 	        pstmt.setString(1, game);                            // 게임 이름
 	        pstmt.setInt(2, dto.getBoardnum());                  // 게시글 번호
@@ -109,8 +109,6 @@ public class ReplyDAO extends DataBaseConnection{
 	            dto.setBoardnum(rs.getInt("boardnum"));
 	            dto.setRep_content(rs.getString("rep_content"));
 	            dto.setRep_reg(rs.getString("rep_reg"));
-	            dto.setRep_upcnt(rs.getInt("rep_upcnt"));
-	            dto.setRep_dwncnt(rs.getInt("rep_dwncnt"));
 	            dto.setNickname(rs.getString("nickname"));
 	            dto.setParent_id(rs.getInt("parent_id"));
 	            list.add(dto);

@@ -534,6 +534,48 @@ public class MemberDAO extends DataBaseConnection{
 
 	    return exists;
 	}
+	//회원의 레벨을 불러오는 메서드
+	public int getLevel(String nick) {
+		int level = 0;
+		try {
+			conn = getOracleConnection();
+			sql = "SELECT LV FROM STATUS_PROFILE WHERE NICKNAME = ?";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, nick);
+			rs = pstmt.executeQuery();
+			if (rs.next()) {
+				level = rs.getInt("LV");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			dbClose(rs, pstmt, conn);
+		}
+		return level;
+	}
+	//랭킹 불러오기
+	   public List<MemberDTO> getRanking(){
+	      List<MemberDTO> list = new ArrayList<>();
+	      try {
+	         conn = getOracleConnection();
+	         sql = "SELECT m.nickname, sp.lv, sp.ex FROM member m JOIN status_profile sp ON m.nickname = sp.nickname WHERE m.isadmin = 0 AND ROWNUM <= 10 ORDER BY sp.lv DESC, sp.ex DESC";
+	         pstmt = conn.prepareStatement(sql);
+	         rs = pstmt.executeQuery();
+	         while(rs.next()) {
+	            MemberDTO dto = new MemberDTO();
+	            dto.setNickname(rs.getString("nickname"));
+	            dto.setLevel(rs.getInt("lv"));
+	            list.add(dto);
+	         }
+	      }catch(Exception e) {
+	         e.printStackTrace();
+	      }finally {
+	         dbClose(rs, pstmt, conn);
+	      }
+	      return list;
+	   }
+	
+	
 }
 	
 

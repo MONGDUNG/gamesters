@@ -4,6 +4,7 @@
 <%@ page import="java.util.List" %>
 <%@ page import="project01.board.bean.BoardDAO" %>
 <%@ page import="project01.board.bean.BoardDTO" %>
+<%@ page import="project01.member.bean.MemberDAO" %>
 <jsp:include page="../header.jsp" />
 <%
     String game = request.getParameter("game");
@@ -43,6 +44,7 @@
     int noOfPages = (int) Math.ceil((double) totalRecords / recordsPerPage);
 
     List<String> categoryList = boardDAO.getCategory(game);
+    MemberDAO mdao = new MemberDAO();
 %>
 <!DOCTYPE html>
 <html>
@@ -147,7 +149,7 @@
         }
         th, td {
             padding: 12px;
-            text-align: center;
+            text-align: left;
             border: 1px solid #ddd;
         }
         th {
@@ -177,6 +179,21 @@
         .pagination a:hover {
             background-color: #007bff;
             color: #fff;
+        }
+        .nickname-container, .nickname {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .nickname img {
+            width: 37px;
+            height: 24px;
+        }
+        .nickname span {
+            max-width: 150px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
     </style>
 </head>
@@ -235,7 +252,9 @@
                         <td><%= board.getReadcount() %></td>
                     </tr>
                 <% } %>
-                <% for (BoardDTO board : boardList) { %>
+                <% for (BoardDTO board : boardList) { 
+                	int level = mdao.getLevel(board.getNickname()); %>
+                
                 <tr>
                     <td><%= board.getBoardnum() %></td>
                     <td><a href="viewBoard.jsp?game=<%=game%>&num=<%=board.getBoardnum()%>&type=normal">
@@ -245,7 +264,16 @@
                                 <img src="../resources/image/photo.png" alt="Best" style="vertical-align: middle;">
                             <% } %>
                         </a></td>
-                    <td><%= board.getNickname() %></td>
+                    <td>
+						<div class="nickname">
+							<%if(level > 100){ %>
+							<img src="../resources/image/level_/sp.gif" alt="레벨 아이콘">
+                            <% } else{%>
+                            <img src="../resources/image/level_/<%= mdao.getLevel(board.getNickname()) %>.gif" alt="레벨 아이콘">
+                            <% } %>
+                            <span><%= board.getNickname() %></span>
+                        </div>
+                    </td>
                     <td><%= board.getReg() %></td>
                     <td><%= board.getReplycount() %></td>
                     <td><%= board.getUpcnt() %></td>

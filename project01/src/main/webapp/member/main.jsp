@@ -7,6 +7,29 @@
 <%@ page import="project01.msg.bean.MsgDAO" %>
 <%@ page import="project01.msg.bean.MsgDTO" %>
 <%@ page import="java.util.List" %>
+
+<%--포럼 페이지네이션 --%>
+<%
+	String currentPageParam = request.getParameter("currentPage");	
+	String searchGame = request.getParameter("game");
+
+	int perPage = 15;
+	int currentPage = (currentPageParam == null) ? 1 : Integer.parseInt(currentPageParam);
+	int start = (currentPage - 1) * perPage + 1;
+	int end = currentPage * perPage;
+	
+	BoardDAO dao = new BoardDAO();
+	
+	List<BoardDTO> forum = dao.getAllBoardGames(searchGame, start, end);
+	int totalForum = dao.getNoOfBoardGames(searchGame);	//포럼 전체 갯수
+	int noOfForum = (int) Math.ceil((double) totalForum / perPage);
+%>
+
+
+
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,19 +40,12 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         .sticky-sidebar {
-          position: sticky; /* 화면에 고정 */
-          top: 20px; /* 상단 여백 설정 */
-          z-index: 10; /* 다른 요소 위에 표시되도록 설정 */
-          height: calc(100vh - 40px); /* 뷰포트 높이에서 상하 여백 차감 */
-          overflow-y: auto; /* 내용이 길면 스크롤 가능하게 */
-          background-color: #ffffff; /* 배경색 고정 */
-      }
-        img {
-            max-width: 100%;
-            height: auto;
-            display: block;
-            margin: 20px auto;
-            object-fit: contain;
+            position: sticky;
+            top: 20px;
+            z-index: 10;
+            height: calc(100vh - 40px);
+            overflow-y: auto;
+            background-color: #ffffff;
         }
         .progress {
             height: 20px;
@@ -38,11 +54,54 @@
             font-size: 0.9rem;
             padding: 5px 10px;
         }
-        .mb-4 {
+        table .d-flex {
+            justify-content: flex-start;
+        }
+        .nickname-container, .nickname {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .nickname img {
+            width: 37px;
+            height: 24px;
+        }
+        .nickname span {
+            max-width: 150px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+         .ranking-list li {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            margin-bottom: 5px;
             border: 1px solid #ddd;
-            padding: 15px;
-            border-radius: 8px;
-            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        .ranking-list li:nth-child(1) {
+            background-color: gold;
+            font-weight: bold;
+        }
+        .ranking-list li:nth-child(2) {
+            background-color: silver;
+            font-weight: bold;
+        }
+        .ranking-list li:nth-child(3) {
+            background-color: #cd7f32; /* Bronze */
+            font-weight: bold;
+        }
+        .ranking-list img {
+            width: 37px;
+            height: 24px;
+            margin-right: 10px;
+        }
+        .ranking-list span {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
     </style>
 </head>
@@ -54,10 +113,10 @@
                 <h5 class="mb-4">포럼 목록</h5>
                 <ul class="list-group">
                     <%
+                    Integer admin = (Integer)(session.getAttribute("admin"));
                     BoardDAO boardDAO = new BoardDAO();
-                    List<BoardDTO> boardGames = boardDAO.getAllBoardGames();
-                    for (BoardDTO dto : boardGames) {
-                    %>
+                    List<BoardDTO> boardGames = boardDAO.getAllBoardGames(searchGame, start, end);
+                    for (BoardDTO dto : boardGames) { %>
                         <li class="list-group-item">
                             <a href="../board/board.jsp?game=<%= dto.getGameName() %>" class="text-decoration-none">
                                 <%= dto.getGameName_kr() %> 포럼
@@ -65,11 +124,34 @@
                         </li>
                     <% } %>
                 </ul>
+              
+                <!-- 검색 폼 -->
+        <div class="card mt-4">
+            <div class="card-body">
+                <form action="main.jsp" method="get" class="row g-3">
+                    <div class="col-auto">
+                        <input type="text" name="game" class="form-control" placeholder="게임 이름을 입력하세요" />
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-primary">검색</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="pagination">        
+        <% 
+        	for(int i = 1 ; i <= noOfForum; i++){
+        		if(searchGame != null){%>
+        		<a href="main.jsp?&currentPage=<%= i %>&game="<%= searchGame %>"><%= i %></a>
+        		<% }else {%>
+        		<a href="main.jsp?&currentPage=<%= i %>"><%= i %></a>
+        	<% } }%>
+        </div>
             </aside>
 
             <!-- 메인 콘텐츠 -->
             <main class="col-md-7 p-4">
-                <img src="../resources/image/gamesters.png" class="img">
+                <img src="../resources/image/gamesters.png" class="img-fluid mx-auto d-block" alt="Gamesters Logo">
 
                 <!-- 베스트 게시글 목록 -->
                 <h5 class="mb-3">베스트 게시글</h5>
@@ -83,57 +165,66 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <%
+                        <% MemberDAO mdao = new MemberDAO();
                         List<BoardDTO> bestBoards = boardDAO.getBestBoardList(1, 30);
                         for (BoardDTO board : bestBoards) {
-                        %>
+                            int level = mdao.getLevel(board.getNickname()); %>
                         <tr>
                             <td><%= board.getGameName() %></td>
                             <td><a href="../board/viewBoard.jsp?game=<%= board.getGameName() %>&num=<%= board.getBoardnum() %>&type=normal" class="text-decoration-none"><%= board.getTitle() %></a></td>
-                            <td><%= board.getNickname() %></td>
+                            <td class="nickname">
+                             <%if(level > 100){ %>
+								<img src="../resources/image/level_/sp.gif" alt="레벨 아이콘">
+	                            <% } else{%>
+	                            <img src="../resources/image/level_/<%= level %>.gif" alt="레벨 아이콘">
+	                            <% } %>
+                                <span><%= board.getNickname() %></span>
+                            </td>
                             <td><%= board.getReg() %></td>
                         </tr>
                         <% } %>
                     </tbody>
                 </table>
+
                 <!-- 베스트 이미지 목록 -->
-            <h5 class="mb-3">베스트 이미지</h5>
-            <div class="d-flex overflow-auto">
-                <%
-                List<BoardDTO> bestImages = boardDAO.getBestImageAndTitleList(1, 20); // Fetch up to 20 best images
-                for (BoardDTO imageUrl : bestImages) {
-                %>
-                <div class="p-2">
-                   <a href="../board/viewBoard.jsp?game=<%= imageUrl.getGameName() %>&num=<%= imageUrl.getBoardnum() %>&type=image">
-                    <img src="<%= imageUrl.getContent() %>" alt="Best Image" class="img-thumbnail" style="max-width: 150px;">
-                    </a>
+                <h5 class="mb-3">베스트 이미지</h5>
+                <div class="d-flex overflow-auto">
+                    <% List<BoardDTO> bestImages = boardDAO.getBestImageAndTitleList(1, 20);
+                    for (BoardDTO imageUrl : bestImages) { %>
+                    <div class="p-2">
+                       <a href="../board/viewBoard.jsp?game=<%= imageUrl.getGameName() %>&num=<%= imageUrl.getBoardnum() %>&type=image">
+                        <img src="<%= imageUrl.getContent() %>" alt="Best Image" class="img-thumbnail" style="max-width: 150px;">
+                        </a>
+                    </div>
+                    <% } %>
                 </div>
-                <% } %>
-            </div>
             </main>
 
             <!-- 사용자 정보 및 광고 -->
             <aside class="col-md-3 p-3">
-                <%
-                String nick = (String) session.getAttribute("nick");
-                Integer admin = (Integer)(session.getAttribute("admin"));
+                <% String nick = (String) session.getAttribute("nick");
+                
                 MemberDAO memberDAO = new MemberDAO();
                 MemberDTO memberDTO = null;
                 MsgDAO msgDAO = new MsgDAO();
                 int unreadMsgCount = 0;
                 if (nick != null) {
                     memberDTO = memberDAO.memberId(nick);
-                    unreadMsgCount = msgDAO.getUnReadMsgCount(nick); // 읽지 않은 쪽지 개수 가져오기
-                }
+                    unreadMsgCount = msgDAO.getUnReadMsgCount(nick);
+                } %>
                 
-                %>
-
                 <!-- 로그인 상태 -->
                 <% if (nick != null && memberDTO != null) { %>
                     <div class="mb-4">
                         <h5>내 정보</h5>
-                        <p><strong>닉네임:</strong> <%= memberDTO.getNickname() %></p>
-                        <p><strong>레벨:</strong> <%= memberDTO.getLevel() %></p>
+                        <div class="nickname">
+                            <%if(memberDTO.getLevel() > 100){ %>
+							<img src="../resources/image/level_/sp.gif" alt="레벨 아이콘">
+                            <% } else{%>
+                            <img src="../resources/image/level_/<%= mdao.getLevel(memberDTO.getNickname()) %>.gif" alt="레벨 아이콘">
+                            <% } %>
+                            <span><%= memberDTO.getNickname() %></span>
+                        </div>
                         <p><strong>경험치:</strong></p>
                         <div class="progress">
                             <div class="progress-bar"
@@ -165,22 +256,23 @@
                     </div>
                 <% } %>
 
-                <!-- 광고 -->
+                <!-- 랭킹 10위 목록 -->
                 <div>
-                    <h5>광고</h5>
-                    <!-- Google AdSense Test Ad -->
-                    <script async
-                        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
-                        crossorigin="anonymous"></script>
-                    <ins class="adsbygoogle"
-                         style="display:block; text-align:center;"
-                         data-ad-client="ca-pub-4911679130006261"
-                         data-ad-slot="1234567890"
-                         data-ad-format="auto"
-                         data-full-width-responsive="true"></ins>
-                    <script>
-                        (adsbygoogle = window.adsbygoogle || []).push({});
-                    </script>
+                    <h5 class="mb-3">랭킹 TOP 10</h5>
+                    <ol class="ranking-list">
+                        <% int rankIndex = 1;
+                        for(MemberDTO rank : mdao.getRanking()) { %>
+                        <li>
+                            <span class="me-2">#<%= rankIndex++ %></span>
+                            <% if(rank.getLevel() > 100) { %>
+                                <img src="../resources/image/level_/sp.gif" alt="레벨 아이콘">
+                            <% } else { %>
+                                <img src="../resources/image/level_/<%= rank.getLevel() %>.gif" alt="레벨 아이콘">
+                            <% } %>
+                            <span><%= rank.getNickname() %></span>
+                        </li>
+                        <% } %>
+                    </ol>
                 </div>
             </aside>
         </div>

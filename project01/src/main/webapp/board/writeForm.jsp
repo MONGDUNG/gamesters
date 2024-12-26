@@ -140,14 +140,19 @@
                 var title = $("#title").val().trim();
                 var content = $("#ir1").val().trim();
                 
+                var plainText = content
+                .replace(/<[^>]*>?/gm, '') // HTML 태그 제거
+                .replace(/&nbsp;/g, ' ') // &nbsp; 제거
+                .trim();
+                
                 if(title.length < 2){
                 	alert("제목은 최소 2글자 이상이어야 합니다.");
                 	return;
                 }
                 
-                if(content.length < 5 || content === "<p>&nbsp;</p>" || content === ""){
-                	alert("내용은 최소 5글자 이상이어야 합니다.");
-                	return;
+                if (plainText.length < 5) {
+                    alert("내용은 최소 5글자 이상이어야 합니다.");
+                    return;
                 }
               
                 $("#frm").submit();

@@ -20,26 +20,71 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 	private ResultSet rs = null;
 	private String sql = null;
 	
-	public List<BoardDTO> getAllBoardGames() {	
-        List<BoardDTO> boardGames = new ArrayList<>();
-        try {
-            conn = getOracleConnection();
-            sql = "SELECT game, game_kr FROM index_board_game";
-            pstmt = conn.prepareStatement(sql);
-            rs = pstmt.executeQuery();
-            while (rs.next()) {
-                BoardDTO dto = new BoardDTO();
-                dto.setGameName(rs.getString("game"));
-                dto.setGameName_kr(rs.getString("game_kr"));
-                boardGames.add(dto);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            dbClose(rs, pstmt, conn);
-        }
-        return boardGames;
-    }
+	public List<BoardDTO> getAllBoardGames(String searchWord, int start, int end ) {
+	    List<BoardDTO> boardGames = new ArrayList<>();
+	    try {
+	        conn = getOracleConnection();
+	        String baseSql = "SELECT game, game_kr FROM index_board_game";
+
+	        // 검색 조건 추가
+	        if (searchWord != null && !searchWord.isEmpty()) {
+	            baseSql += " WHERE INSTR(game_kr, ?) > 0";
+	        }
+
+	        sql = "SELECT * FROM ("
+	            + "    SELECT ROWNUM rnum, d.* FROM ("
+	            + "        " + baseSql + " ORDER BY game"
+	            + "    ) d WHERE ROWNUM <= ?"
+	            + ") WHERE rnum >= ?";
+
+	        pstmt = conn.prepareStatement(sql);
+
+	        int paramIndex = 1;
+	        if (searchWord != null && !searchWord.isEmpty()) {
+	            pstmt.setString(paramIndex++, searchWord);
+	        }
+	        pstmt.setInt(paramIndex++, end);   // ROWNUM <= end
+	        pstmt.setInt(paramIndex, start);   // rnum >= start
+
+	        rs = pstmt.executeQuery();
+	        while (rs.next()) {
+	            BoardDTO dto = new BoardDTO();
+	            dto.setGameName(rs.getString("game"));
+	            dto.setGameName_kr(rs.getString("game_kr"));
+	            boardGames.add(dto);
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    } finally {
+	        dbClose(rs, pstmt, conn);
+	    }
+	    return boardGames;
+	}
+	public int getNoOfBoardGames(String searchGame) {
+		int noOfBoardGames = 0;
+	    try{
+	        conn = getOracleConnection();
+	        sql = "SELECT COUNT(*) FROM index_board_game";
+	           
+	        if(searchGame != null && !searchGame.isEmpty()) {
+	        sql += " WHERE INSTR(game_kr, ?) > 0";
+	        }
+	        pstmt = conn.prepareStatement(sql);
+	           
+	        if(searchGame != null && !searchGame.isEmpty()) {
+	        	pstmt.setString(1, searchGame);
+	        }	           
+	        rs = pstmt.executeQuery();
+	        if (rs.next()) {
+	            noOfBoardGames = rs.getInt(1);
+	        }
+	       } catch (SQLException e) {
+	           e.printStackTrace();
+	       } finally {
+	           dbClose(rs, pstmt, conn);
+	    }
+	    return noOfBoardGames;
+	}
 	public String noPlaster (String nick, String game) {		// 도배방지를 위해 가장 최근에 쓴 게시글의 시각 구하는 메서드
 		String result = null;
 		try {
@@ -255,7 +300,7 @@ public class BoardDAO extends DataBaseConnection{	// 게시판 DAO
 	            + "        SELECT * FROM BEST_BOARD WHERE is_image = 0 ORDER BY BEST_NUM DESC"
 	            + "    ) d WHERE ROWNUM <= ?"
 	            + ") WHERE rnum >= ?";
-
+	        
 	        pstmt = conn.prepareStatement(sql);
 	        pstmt.setInt(1, end);   // ROWNUM <= end
 	        pstmt.setInt(2, start); // rnum >= start

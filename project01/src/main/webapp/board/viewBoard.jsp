@@ -4,6 +4,7 @@
 <%@ page import="project01.board.bean.BoardDTO"%>
 <%@ page import="project01.board.bean.ReplyDTO" %>
 <%@ page import="project01.board.bean.ReplyDAO" %>
+<%@ page import="project01.member.bean.MemberDAO" %>
 <%@ page import="java.util.List"%>
 <jsp:include page="../header.jsp" />
 <%
@@ -21,7 +22,8 @@ request.setCharacterEncoding("utf-8");
 	if (type.equals("image")){
 		is_image = 1;
 	}
-	
+	MemberDAO mdao = new MemberDAO();
+	int level = mdao.getLevel(dto.getNickname());
 	
 %>
 <!DOCTYPE html>
@@ -210,7 +212,12 @@ request.setCharacterEncoding("utf-8");
                 <th>작성자</th>
                 <td>
                     <a href="#" onclick="openProfile('<%=dto.getNickname()%>'); return false;">
-                        <%=dto.getNickname()%>
+                        <%if(level > 100){ %>
+							<img src="../resources/image/level_/sp.gif" alt="레벨 아이콘">
+                            <% } else{%>
+                            <img src="../resources/image/level_/<%= mdao.getLevel(dto.getNickname()) %>.gif" alt="레벨 아이콘">
+                            <% } %>
+                            <span><%= dto.getNickname() %></span>
                     </a>
                 </td>
             </tr>

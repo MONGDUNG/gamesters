@@ -3,6 +3,18 @@
 <%@ page import="java.util.List" %>
 <%@ page import="project01.board.bean.BoardDAO" %>
 <%@ page import="project01.board.bean.BoardDTO" %>
+<%
+    Integer admin = (Integer) session.getAttribute("admin");
+    if (admin == null || admin != 1) {
+%>
+    <script type="text/javascript">
+        alert("관리자만 접근 가능합니다.");
+        window.location.href = "../member/main.jsp";
+    </script>
+<%
+        return;
+    }
+%>
 <jsp:include page="../header.jsp" />
 <!DOCTYPE html>
 <html>
@@ -26,8 +38,16 @@
                 <div class="card shadow-sm">
                     <div class="card-body">
                         <%
+                            int currentPage = 1;
+                            int recordsPerPage = 10;
+                            if (request.getParameter("currentPage") != null)
+                             currentPage = Integer.parseInt(request.getParameter("currentPage"));
                             BoardDAO boardDAO = new BoardDAO();
-                            List<BoardDTO> boardGames = boardDAO.getAllBoardGames();
+                            int start = (currentPage - 1) * recordsPerPage + 1;
+                            int end = currentPage * recordsPerPage;
+                            List<BoardDTO> boardGames = boardDAO.getAllBoardGames(start, end);
+                            int noOfRecords = boardDAO.getNoOfBoardGames();
+                            int noOfPages = (int) Math.ceil(noOfRecords * 1.0 / recordsPerPage);
                         %>
                         <div class="table-responsive">
                             <table class="table table-hover">
@@ -49,7 +69,7 @@
                                                     삭제
                                                 </button>
                                             </form>
-                                            <a href="../board/board.jsp?game=<%= dto.getGameName() %>" 
+                                            <a href="../board/board.jsp?game=<%= dto.getGameName() %>"
                                                class="btn btn-primary btn-sm">
                                                 보기
                                             </a>
@@ -59,6 +79,15 @@
                                 </tbody>
                             </table>
                         </div>
+                        <nav>
+                            <ul class="pagination justify-content-center">
+                                <% for (int i = 1; i <= noOfPages; i++) { %>
+                                    <li class="page-item <%= (i == currentPage) ? "active" : "" %>">
+                                        <a class="page-link" href="boardManager.jsp?currentPage=<%= i %>"><%= i %></a>
+                                    </li>
+                                <% } %>
+                            </ul>
+                        </nav>
                     </div>
                 </div>
 
