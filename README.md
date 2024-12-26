@@ -76,28 +76,9 @@ ojdbc17
 jakarta.activation
 jarkarta.mail
 
-프로젝트 구조
 
-project01/
-├── src/main/java
-│   ├── project01/admin/bean       # 관리자 관련 DAO 및 DTO
-│   ├── project01/board/bean       # 게시판 관련 DAO 및 DTO
-│   ├── project01/member/bean      # 회원 관련 DAO 및 DTO
-│   ├── project01/msg/bean         # 메시지 관련 DAO 및 DTO
-│   ├── project01/report/bean      # 신고 관리 DAO 및 DTO
-│   └── project01/site/bean        # 공통 모듈 (DB 연결 등)
-├── src/main/webapp
-│   ├── admin/                     # 관리자 페이지 JSP
-│   ├── board/                     # 게시판 관련 JSP
-│   ├── member/                    # 회원 관련 JSP
-│   ├── msg/                       # 메시지 관련 JSP
-│   ├── resources/                 # 정적 리소스 (이미지, JS, CSS 등)
-│   ├── SE2/                       # 에디터 관련 파일
-│   ├── WEB-INF/
-│   │   ├── lib/                   # 프로젝트 의존 라이브러리
-│   │   └── web.xml                # 웹 애플리케이션 설정
-│   └── sql/                       # 데이터베이스 스키마
-└── build/                         # 컴파일된 클래스 파일
+
+![image](https://github.com/user-attachments/assets/37878f6d-a12c-4446-9b2e-33b744718126)
 
 설치 및 실행
 
