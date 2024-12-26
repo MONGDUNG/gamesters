@@ -171,18 +171,31 @@ public class AdminDAO extends DataBaseConnection {
      * 금지어를 추가합니다.
      * @param banWord 추가할 금지어
      */
-    public void addBanWord(String banWord) {
+    public int addBanWord(String banWord) {
+    	int result = 0;
         try {
             conn = getOracleConnection();
-            sql = "INSERT INTO ban_word VALUES (?, ban_word_seq.NEXTVAL)";
+
+            // 중복 확인
+            sql = "SELECT COUNT(*) FROM ban_word WHERE word = ?";
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, banWord);
-            pstmt.executeUpdate();
-        } catch (Exception e) {
+            rs = pstmt.executeQuery();
+
+            if (rs.next() && rs.getInt(1) == 0) {
+                // 중복되지 않으면 추가
+                sql = "INSERT INTO ban_word (word, num) VALUES (?, ban_word_seq.NEXTVAL)";
+                pstmt = conn.prepareStatement(sql);
+                pstmt.setString(1, banWord);
+                pstmt.executeUpdate();
+                result = 1;
+            }
+        } catch (SQLException e) {
             e.printStackTrace();
         } finally {
             dbClose(rs, pstmt, conn);
         }
+        return result;
     }
     /**
      * 금지어를 삭제합니다.
@@ -210,14 +223,27 @@ public class AdminDAO extends DataBaseConnection {
 	 * @param limit 조회할 최대 개수
 	 * @return 금지어 목록
 	 */
-	public List<String> getBanWords(int offset, int limit) {
+	public List<String> getBanWords(int offset, int limit, String searchWord) {
 	    List<String> banWords = new ArrayList<>();
 	    try {
 	        conn = getOracleConnection();
-	        sql = "SELECT word FROM ban_word ORDER BY word OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
-	        pstmt = conn.prepareStatement(sql);
-	        pstmt.setInt(1, offset);
-	        pstmt.setInt(2, limit);
+	        String baseSql = "SELECT word FROM ban_word";
+
+	        // 검색 조건 추가
+	        if (searchWord != null && !searchWord.isEmpty()) {
+	            baseSql += " WHERE INSTR(word, ?) > 0";
+	        }
+
+	        baseSql += " ORDER BY word OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+	        pstmt = conn.prepareStatement(baseSql);
+
+	        int paramIndex = 1;
+	        if (searchWord != null && !searchWord.isEmpty()) {
+	            pstmt.setString(paramIndex++, searchWord);
+	        }
+	        pstmt.setInt(paramIndex++, offset);
+	        pstmt.setInt(paramIndex, limit);
+
 	        rs = pstmt.executeQuery();
 	        while (rs.next()) {
 	            banWords.add(rs.getString("word"));
@@ -233,12 +259,23 @@ public class AdminDAO extends DataBaseConnection {
 	 * 금지어 총 개수를 반환합니다.
 	 * @return 금지어 개수
 	 */
-	public int getBanWordCount() {
+	public int getBanWordCount(String searchWord) {
 	    int count = 0;
 	    try {
 	        conn = getOracleConnection();
-	        sql = "SELECT COUNT(*) FROM ban_word";
-	        pstmt = conn.prepareStatement(sql);
+	        String baseSql = "SELECT COUNT(*) FROM ban_word";
+
+	        // 검색 조건 추가
+	        if (searchWord != null && !searchWord.isEmpty()) {
+	            baseSql += " WHERE INSTR(word, ?) > 0";
+	        }
+
+	        pstmt = conn.prepareStatement(baseSql);
+
+	        if (searchWord != null && !searchWord.isEmpty()) {
+	            pstmt.setString(1, searchWord);
+	        }
+
 	        rs = pstmt.executeQuery();
 	        if (rs.next()) {
 	            count = rs.getInt(1);

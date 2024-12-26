@@ -3,9 +3,19 @@
 <%@ page import="project01.admin.bean.AdminDAO" %>
 
 <% 
+	int result = 0;
     String newBanWord = request.getParameter("newBanWord");
     if (newBanWord != null && !newBanWord.trim().isEmpty()) {
-        new AdminDAO().addBanWord(newBanWord);
+        result = new AdminDAO().addBanWord(newBanWord);
     }
+    if (result == 0) {
+    	%>
+    	<script>
+    	    alert("금칙어가 이미 존재합니다.");
+    	    history.go(-1);
+    	</script>
+    	<%
+    }else{
     response.sendRedirect("banWordAdmin.jsp");
+    }
 %>

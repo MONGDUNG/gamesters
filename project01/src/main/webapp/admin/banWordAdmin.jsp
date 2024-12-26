@@ -1,4 +1,3 @@
-
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ page import="project01.admin.bean.AdminDAO" %>
@@ -8,12 +7,13 @@
     AdminDAO dao = new AdminDAO();
     int currentPage = 1;
     int limit = 30;
+    String search = request.getParameter("search");
     if (request.getParameter("page") != null) {
         currentPage = Integer.parseInt(request.getParameter("page"));
     }
     int offset = (currentPage - 1) * limit;
-    List<String> banWords = dao.getBanWords(offset, limit);
-    int totalBanWords = dao.getBanWordCount();
+    List<String> banWords = dao.getBanWords(offset, limit, search);
+    int totalBanWords = dao.getBanWordCount(search);
     int totalPages = (int) Math.ceil((double) totalBanWords / limit);
 %>
 
@@ -41,7 +41,7 @@
         <!-- 검색 기능 -->
         <form method="get" action="banWordAdmin.jsp" class="row g-3 mb-4">
             <div class="col-auto">
-                <input type="text" name="search" class="form-control" placeholder="검색어 입력">
+                <input type="text" name="search" class="form-control" placeholder="검색어 입력" value="<%= search != null ? search : "" %>">
             </div>
             <div class="col-auto">
                 <button type="submit" class="btn btn-primary">검색</button>
@@ -58,20 +58,17 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <% 
-                    String search = request.getParameter("search");
+                    <%
                     for (String word : banWords) {
-                        if (search == null || word.contains(search)) {
                     %>
                     <tr>
                         <td><%= word %></td>
                         <td>
-                            <button type="button" class="btn btn-danger btn-sm" 
+                            <button type="button" class="btn btn-danger btn-sm"
                                     onclick="deleteBanWord('<%= word %>')">삭제</button>
                         </td>
                     </tr>
-                    <% 
-                        }
+                    <%
                     }
                     %>
                 </tbody>
@@ -83,19 +80,19 @@
             <ul class="pagination justify-content-center">
                 <% if (currentPage > 1) { %>
                     <li class="page-item">
-                        <a class="page-link" href="banWordAdmin.jsp?page=<%= currentPage - 1 %>">이전</a>
+                        <a class="page-link" href="banWordAdmin.jsp?page=<%= currentPage - 1 %>&search=<%= search != null ? search : "" %>">이전</a>
                     </li>
                 <% } %>
-                
+
                 <% for (int i = 1; i <= totalPages; i++) { %>
                     <li class="page-item <%= (i == currentPage) ? "active" : "" %>">
-                        <a class="page-link" href="banWordAdmin.jsp?page=<%= i %>"><%= i %></a>
+                        <a class="page-link" href="banWordAdmin.jsp?page=<%= i %>&search=<%= search != null ? search : "" %>"><%= i %></a>
                     </li>
                 <% } %>
-                
+
                 <% if (currentPage < totalPages) { %>
                     <li class="page-item">
-                        <a class="page-link" href="banWordAdmin.jsp?page=<%= currentPage + 1 %>">다음</a>
+                        <a class="page-link" href="banWordAdmin.jsp?page=<%= currentPage + 1 %>&search=<%= search != null ? search : "" %>">다음</a>
                     </li>
                 <% } %>
             </ul>

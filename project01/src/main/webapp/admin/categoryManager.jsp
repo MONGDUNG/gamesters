@@ -3,7 +3,20 @@
 <%@ page import="java.util.List" %>
 <%@ page import="project01.board.bean.BoardDAO" %>
 <jsp:include page="../header.jsp" />
+
+
+
 <%
+	Integer admin = (Integer) session.getAttribute("admin");
+	if (admin == null || admin != 1) {
+%>
+<script type="text/javascript">
+    alert("관리자만 접근 가능합니다.");
+    window.location.href = "../member/main.jsp";
+</script>
+<%
+    return;
+}
     String game = request.getParameter("game");
 %>
 <h2>카테고리 목록</h2>

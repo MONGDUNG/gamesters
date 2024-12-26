@@ -37,16 +37,24 @@
             <div class="col-md-8">
                 <div class="card shadow-sm">
                     <div class="card-body">
+                        <!-- Search Form -->
+                        <form method="get" action="boardManager.jsp" class="mb-4">
+                            <div class="input-group">
+                                <input type="text" name="searchWord" class="form-control" placeholder="검색어를 입력하세요" value="<%= request.getParameter("searchWord") != null ? request.getParameter("searchWord") : "" %>">
+                                <button class="btn btn-primary" type="submit">검색</button>
+                            </div>
+                        </form>
                         <%
                             int currentPage = 1;
                             int recordsPerPage = 10;
+                            String searchWord = request.getParameter("searchWord");
                             if (request.getParameter("currentPage") != null)
-                             currentPage = Integer.parseInt(request.getParameter("currentPage"));
+                                currentPage = Integer.parseInt(request.getParameter("currentPage"));
                             BoardDAO boardDAO = new BoardDAO();
                             int start = (currentPage - 1) * recordsPerPage + 1;
                             int end = currentPage * recordsPerPage;
-                            List<BoardDTO> boardGames = boardDAO.getAllBoardGames(start, end);
-                            int noOfRecords = boardDAO.getNoOfBoardGames();
+                            List<BoardDTO> boardGames = boardDAO.getAllBoardGames(searchWord, start, end);
+                            int noOfRecords = boardDAO.getNoOfBoardGames(searchWord);
                             int noOfPages = (int) Math.ceil(noOfRecords * 1.0 / recordsPerPage);
                         %>
                         <div class="table-responsive">
@@ -83,7 +91,7 @@
                             <ul class="pagination justify-content-center">
                                 <% for (int i = 1; i <= noOfPages; i++) { %>
                                     <li class="page-item <%= (i == currentPage) ? "active" : "" %>">
-                                        <a class="page-link" href="boardManager.jsp?currentPage=<%= i %>"><%= i %></a>
+                                        <a class="page-link" href="boardManager.jsp?currentPage=<%= i %><%= (searchWord != null && !searchWord.isEmpty()) ? "&searchWord=" + searchWord : "" %>"><%= i %></a>
                                     </li>
                                 <% } %>
                             </ul>
