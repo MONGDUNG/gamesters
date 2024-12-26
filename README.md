@@ -121,7 +121,7 @@ Eclipse, IntelliJ 등 IDE에서 Tomcat 서버를 설정하고 프로젝트를 �
 
 접속
 
-브라우저에서 http://localhost:8080/project01로 접속합니다.
+브라우저에서 http://localhost:8080/project01 로 접속합니다.
 
 기여 방법
 
