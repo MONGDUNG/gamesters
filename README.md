@@ -4,7 +4,7 @@ Gamesters A Comprehensive Gaming Community Website.
 
 프로젝트 개요
 
-gamesters는 Java EE (Java Enterprise Edition) 기반의 다이나믹 웹 프로젝트로, JSP, 서블릿, 데이터베이스 통합을 활용하여 사용자가 상호작용할 수 있는 웹 애플리케이션을 제공합니다. 이 프로젝트는 MVC 아키텍처를 준수하며 관리 기능과 사용자 상호작용 기능을 포함합니다.
+gamesters는 Java EE (Java Enterprise Edition) 기반의 다이나믹 웹 프로젝트로, JSP, 서블릿, 데이터베이스 통합을 활용하여 사용자가 상호작용할 수 있는 웹 애플리케이션을 제공합니다. 이 프로젝트는 관리 기능과 사용자 상호작용 기능을 포함합니다.
 
 주요 기능
 
