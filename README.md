@@ -1,6 +1,6 @@
 # Gamesters
 
-**Gamesters**는 Java EE (Java Enterprise Edition)를 사용하여 개발된 종합 게임 커뮤니티 웹사이트입니다. JSP, 서블릿 및 데이터베이스 통합을 활용하여 사용자와 상호작용할 수 있는 웹 애플리케이션을 제공합니다.
+**Gamesters**는 Java EE (Java Enterprise Edition)를 사용하여 개발된 종합 게임 커뮤니티 웹사이트입니다. JSP, JDBC를 활용하여 사용자와 상호작용할 수 있는 웹 애플리케이션을 제공합니다.
 
 ---
 
@@ -43,7 +43,7 @@ Gamesters는 Java EE 기반의 동적 웹 프로젝트로, 사용자 및 관리 
 
 ### **백엔드**
 - Java EE
-- JSP/Servlet
+- JSP
 - JDBC
 
 ### **프론트엔드**
@@ -57,7 +57,6 @@ Gamesters는 Java EE 기반의 동적 웹 프로젝트로, 사용자 및 관리 
 - `commons-fileupload`
 - `json-20210307`
 - `ojdbc17`
-- `jakarta.activation`
 - `jakarta.mail`
 
 ---
@@ -104,7 +103,7 @@ cd project01
 ![Gamesters Screenshot](https://github.com/user-attachments/assets/37878f6d-a12c-4446-9b2e-33b744718126)
 # Gamesters
 
-**Gamesters** is a comprehensive gaming community website developed as a dynamic web project using Java EE (Java Enterprise Edition). It leverages JSP, Servlets, and database integration to provide an interactive web application for users.
+**Gamesters** is a comprehensive gaming community website developed as a dynamic web project using Java EE (Java Enterprise Edition). It leverages JSP and database integration to provide an interactive web application for users.
 
 ---
 
@@ -147,7 +146,7 @@ Gamesters is a Java EE-based dynamic web project that offers both administrative
 
 ### **Backend**
 - Java EE
-- JSP/Servlet
+- JSP
 - JDBC
 
 ### **Frontend**
